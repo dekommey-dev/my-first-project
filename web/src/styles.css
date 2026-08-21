@@ -3,40 +3,40 @@
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #ffffff;
-  --bg-sunken: #f6f6f4;
+  --bg: #f6f8f8;
+  --bg-sunken: #edf1f1;
   --bg-raised: #ffffff;
-  --bg-hover: #ecece8;
-  --surface-user: #ecece8;
-  --border: #e0e0da;
-  --border-strong: #cfcfc7;
-  --ink: #1a1a18;
-  --ink-muted: #6d6d66;
-  --ink-faint: #9a9a92;
-  --accent: #c96442;
+  --bg-hover: #e2e8e8;
+  --surface-user: #edf1f1;
+  --border: #d9dfdf;
+  --border-strong: #bcc6c6;
+  --ink: #0f1f1e;
+  --ink-muted: #52615f;
+  --ink-faint: #8b9897;
+  --accent: #0d7d84;
   --accent-ink: #ffffff;
-  --danger: #b3452c;
-  --code-bg: #f4f4f1;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 8px 24px rgb(0 0 0 / 0.06);
+  --danger: #a33a34;
+  --code-bg: #eff3f3;
+  --shadow: 0 1px 2px rgb(15 31 30 / 0.06), 0 8px 24px rgb(15 31 30 / 0.08);
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #1f1e1d;
-  --bg-sunken: #191817;
-  --bg-raised: #262524;
-  --bg-hover: #302f2d;
-  --surface-user: #302f2d;
-  --border: #35342f;
-  --border-strong: #454339;
-  --ink: #f3f2ee;
-  --ink-muted: #a8a69c;
-  --ink-faint: #7c7a72;
-  --accent: #d97757;
-  --accent-ink: #1f1e1d;
-  --danger: #e0715a;
-  --code-bg: #141312;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --bg: #0d1313;
+  --bg-sunken: #101616;
+  --bg-raised: #18201f;
+  --bg-hover: #202a29;
+  --surface-user: #202a29;
+  --border: #253130;
+  --border-strong: #384746;
+  --ink: #e5eded;
+  --ink-muted: #9aa8a7;
+  --ink-faint: #6a7877;
+  --accent: #45bcc2;
+  --accent-ink: #06100f;
+  --danger: #e58074;
+  --code-bg: #0a1010;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px rgb(0 0 0 / 0.45);
 }
 
 * {
@@ -53,8 +53,8 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo',
-    'Noto Sans KR', Roboto, sans-serif;
+  font-family: 'Instrument Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Apple SD Gothic Neo', Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -616,7 +616,7 @@ select {
 
 .markdown :not(pre) > code {
   padding: 2px 5px;
-  font-family: 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace;
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.88em;
   background: var(--code-bg);
   border: 1px solid var(--border);
@@ -645,7 +645,7 @@ select {
 }
 
 .markdown pre code {
-  font-family: 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace;
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -700,12 +700,12 @@ select {
 .hljs-selector-tag,
 .hljs-literal,
 .hljs-type {
-  color: #a06bd6;
+  color: #8a5cc4;
 }
 .hljs-string,
 .hljs-regexp,
 .hljs-addition {
-  color: #4c9a5e;
+  color: #3d8b5f;
 }
 .hljs-number,
 .hljs-built_in,
@@ -715,7 +715,7 @@ select {
 .hljs-title,
 .hljs-name,
 .hljs-section {
-  color: #3f7fbf;
+  color: #2f7fa8;
 }
 .hljs-variable,
 .hljs-template-variable,
@@ -726,22 +726,22 @@ select {
 :root[data-theme='dark'] .hljs-selector-tag,
 :root[data-theme='dark'] .hljs-literal,
 :root[data-theme='dark'] .hljs-type {
-  color: #c39ae8;
+  color: #b28ce8;
 }
 :root[data-theme='dark'] .hljs-string,
 :root[data-theme='dark'] .hljs-regexp,
 :root[data-theme='dark'] .hljs-addition {
-  color: #83c98f;
+  color: #74c493;
 }
 :root[data-theme='dark'] .hljs-number,
 :root[data-theme='dark'] .hljs-built_in,
 :root[data-theme='dark'] .hljs-attr {
-  color: #e79a7c;
+  color: #e0a06a;
 }
 :root[data-theme='dark'] .hljs-title,
 :root[data-theme='dark'] .hljs-name,
 :root[data-theme='dark'] .hljs-section {
-  color: #7db4e8;
+  color: #6cb6da;
 }
 
 /* ── Settings ────────────────────────────────────────────────────────────── */

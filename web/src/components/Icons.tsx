@@ -87,8 +87,7 @@ export const RetryIcon = (p: IconProps) => (
 )
 
 export const SparkIcon = (p: IconProps) => (
-  <svg {...base} {...p}>
-    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z" />
-    <path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7Z" />
+  <svg {...base} {...p} strokeWidth={2}>
+    <path d="M12 4v16M4 12h16M6.5 6.5l11 11M17.5 6.5l-11 11" />
   </svg>
 )

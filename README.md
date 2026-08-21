@@ -4,7 +4,10 @@ A self-hosted, ChatGPT-style AI assistant. React front end, Node/Express back
 end, streaming answers from the Anthropic Claude API, conversations persisted in
 SQLite.
 
-<!-- Replace with your own screenshot after a first run. -->
+**[Try the interface](https://claude.ai/code/artifact/8d86ce46-ceab-4132-8eb6-978644920bdf)** —
+a hosted page that runs the real UI. Streaming, stopping, persistence and
+settings all work there; answers are scripted from these docs, because a
+published page cannot call a model. Source in [`preview/`](preview/).
 
 ## What's in the box
 
