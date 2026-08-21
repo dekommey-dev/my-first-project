@@ -1,0 +1,19 @@
+{
+  "name": "aida",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aida — a self-hosted, ChatGPT-style AI assistant built on the Anthropic Claude API",
+  "workspaces": ["server", "web"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace @aida/server",
+    "dev:web": "npm run dev --workspace @aida/web",
+    "build": "npm run build --workspace @aida/server && npm run build --workspace @aida/web",
+    "start": "npm run start --workspace @aida/server",
+    "typecheck": "npm run typecheck --workspace @aida/server && npm run typecheck --workspace @aida/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@aida/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Aida web client — a ChatGPT-style interface for the Aida API server",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.14",
+    "highlight.js": "^11.11.1",
+    "marked": "^16.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.6"
+  }
+}
