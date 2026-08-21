@@ -1,0 +1,28 @@
+services:
+  api:
+    build: ./server
+    restart: unless-stopped
+    environment:
+      # Read from your shell or a .env file next to this compose file.
+      # Leave unset to run the API in demo mode.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-claude-opus-5}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      PORT: "8787"
+      DATA_DIR: /data
+    volumes:
+      - aida-data:/data
+    expose:
+      - "8787"
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  aida-data:
