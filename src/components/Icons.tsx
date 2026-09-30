@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-type IconProps = SVGProps<SVGSVGElement> & { size?: number };
+type IconProps = SVGProps<SVGSVGElement> & { size?: number | string };
 
 function Svg({ size = 16, children, ...rest }: IconProps) {
   return (
@@ -145,5 +145,16 @@ export const ArrowUpIcon = (p: IconProps) => (
 export const ArrowDownIcon = (p: IconProps) => (
   <Svg {...p} strokeWidth={2.5}>
     <path d="M12 5v14M19 12l-7 7-7-7" />
+  </Svg>
+);
+export const ChevronRightIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m9 6 6 6-6 6" />
+  </Svg>
+);
+export const InfoIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
   </Svg>
 );

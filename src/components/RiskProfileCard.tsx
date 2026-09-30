@@ -2,36 +2,17 @@ import { RISK_GRADES } from '../data/mock';
 import { formatDate } from '../lib/format';
 import type { RiskProfile } from '../types';
 import { Card } from './common';
-import { ShieldIcon } from './Icons';
+
+/** 카드에 노출할 설문 응답 (나머지는 상세 결과에서) */
+const SHOWN_ANSWERS = ['투자 목적', '투자 가능 기간', '감내 가능 손실', '투자 경험'];
 
 export function RiskProfileCard({ profile }: { profile: RiskProfile }) {
+  const answers = profile.answers.filter((a) => SHOWN_ANSWERS.includes(a.question));
   return (
-    <Card
-      id="risk-profile"
-      className="span-4"
-      title="투자 성향 분석"
-      subtitle={`설문 기반 진단 · ${formatDate(profile.surveyedAt)}`}
-      action={
-        <button type="button" className="text-btn">
-          상세 결과
-        </button>
-      }
-    >
-      <div className="profile-hero">
-        <div className="profile-badge">
-          <ShieldIcon size={28} />
-        </div>
-        <div>
-          <div className="profile-grade">
-            {profile.grade}등급 / 5등급 · 설문 점수 <span className="num">{profile.score}</span>점
-          </div>
-          <div className="profile-label">{profile.label}</div>
-          {profile.previousLabel && (
-            <div className="profile-change">
-              이전 진단: {profile.previousLabel} → {profile.label}
-            </div>
-          )}
-        </div>
+    <Card id="risk-profile" className="order-5" title="내 투자 성향">
+      <div className="profile-type">{profile.label}</div>
+      <div className="profile-meta">
+        5단계 중 {profile.grade}단계 · 설문 {profile.score}점 · {formatDate(profile.surveyedAt)} 진단
       </div>
 
       <div
@@ -60,7 +41,7 @@ export function RiskProfileCard({ profile }: { profile: RiskProfile }) {
       <p className="profile-summary">{profile.summary}</p>
 
       <dl className="kv">
-        {profile.answers.map((a) => (
+        {answers.map((a) => (
           <div key={a.question}>
             <dt>{a.question}</dt>
             <dd>{a.answer}</dd>
@@ -71,21 +52,14 @@ export function RiskProfileCard({ profile }: { profile: RiskProfile }) {
           <dd>{profile.expectedReturn}</dd>
         </div>
         <div>
-          <dt>예상 변동성</dt>
-          <dd>{profile.expectedVolatility}</dd>
+          <dt>적용 포트폴리오</dt>
+          <dd>{profile.modelPortfolio}</dd>
         </div>
       </dl>
 
-      <div className="profile-model">
-        <span>
-          적용 모델 <strong>{profile.modelPortfolio}</strong>
-          <br />
-          다음 정기 재진단 {formatDate(profile.nextSurveyAt)}
-        </span>
-        <button type="button" className="primary-btn">
-          성향 재진단
-        </button>
-      </div>
+      <button type="button" className="btn btn-grey btn-block">
+        투자 성향 다시 진단하기
+      </button>
     </Card>
   );
 }

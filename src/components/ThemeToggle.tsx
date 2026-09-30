@@ -13,12 +13,19 @@ function readStored(): Theme | null {
   }
 }
 
+/** 호스트가 이미 지정한 테마(data-theme)가 있으면 존중하고, 없으면 OS 설정을 따른다. */
+function initialTheme(): Theme {
+  const attr = document.documentElement.getAttribute('data-theme');
+  if (attr === 'light' || attr === 'dark') return attr;
+  return systemTheme();
+}
+
 function systemTheme(): Theme {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => readStored() ?? systemTheme());
+  const [theme, setTheme] = useState<Theme>(() => readStored() ?? initialTheme());
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -39,7 +46,7 @@ export function ThemeToggle() {
         }
       }}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      {theme === 'dark' ? <SunIcon size={20} /> : <MoonIcon size={20} />}
     </button>
   );
 }

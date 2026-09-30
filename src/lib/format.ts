@@ -64,3 +64,11 @@ export function direction(value: number, epsilon = 1e-9): Direction {
   if (value < -epsilon) return 'down';
   return 'flat';
 }
+
+/** 받침 유무에 따라 조사를 고른다: withJosa('해외주식', '이', '가') → "해외주식이" */
+export function withJosa(word: string, withBatchim: string, withoutBatchim: string): string {
+  const code = word.charCodeAt(word.length - 1);
+  const isHangul = code >= 0xac00 && code <= 0xd7a3;
+  const batchim = isHangul && (code - 0xac00) % 28 !== 0;
+  return `${word}${batchim ? withBatchim : withoutBatchim}`;
+}

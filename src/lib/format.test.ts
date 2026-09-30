@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatKRW, formatKRWCompact, formatPct, formatPctPoint } from './format';
+import { formatKRW, formatKRWCompact, formatPct, formatPctPoint, withJosa } from './format';
 
 describe('format', () => {
   it('formats won amounts', () => {
@@ -16,5 +16,13 @@ describe('format', () => {
     expect(formatPct(-0.00001, { signed: true })).toBe('0.00%');
     expect(formatPctPoint(0.028)).toBe('+2.8%p');
     expect(formatPctPoint(-0.015)).toBe('-1.5%p');
+  });
+});
+
+describe('withJosa', () => {
+  it('picks the particle by final consonant', () => {
+    expect(withJosa('해외주식', '이', '가')).toBe('해외주식이');
+    expect(withJosa('채권', '이', '가')).toBe('채권이');
+    expect(withJosa('대체투자', '이', '가')).toBe('대체투자가');
   });
 });

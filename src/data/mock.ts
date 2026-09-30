@@ -20,7 +20,7 @@ export const riskProfile: RiskProfile = {
   nextSurveyAt: '2027-03-12',
   previousLabel: '적극투자형',
   summary:
-    '예금 이상의 수익을 기대하되, 원금 대비 -15% 수준의 일시적 손실까지는 감내할 수 있는 성향입니다. 5년 내 주택 구입 계획을 반영해 채권 비중을 높였습니다.',
+    '예금 이상의 수익을 기대하되, 원금 대비 -15% 수준의 일시적 손실까지는 감내할 수 있는 성향이에요. 5년 내 주택 구입 계획을 반영해 채권 비중을 높였어요.',
   modelPortfolio: '글로벌 밸런스 50/50',
   expectedReturn: '연 5~7%',
   expectedVolatility: '연 8~10%',
@@ -148,7 +148,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'planned',
     title: '4분기 정기 리밸런싱 예정',
     rationale:
-      '해외주식이 목표 대비 +2.8%p 초과 상태입니다. 이탈 임계치(±5%p)에는 미달해 정기 일정에 맞춰 해외주식 일부를 차익 실현하고 채권·현금성 자산을 보강할 예정입니다.',
+      '해외주식이 목표보다 2.8%p 많아요. 자동 조정 기준(±5%p)보다는 작아서, 정기 리밸런싱 때 해외주식 일부를 팔고 채권과 현금성 자산을 채울게요.',
     trades: upcomingTrades,
     cost: Math.round(turnover(upcomingTrades) * totalValue * 0.0005),
   },
@@ -159,7 +159,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '비중 이탈 리밸런싱',
     rationale:
-      '미국 기술주 강세로 해외주식 비중이 목표 대비 +5.1%p까지 확대되어 임계치를 초과했습니다. 초과분을 매도해 채권과 국내주식으로 재배분했습니다.',
+      '미국 기술주 강세로 해외주식 비중이 목표 대비 +5.1%p까지 확대되어 임계치를 초과했어요. 초과분을 매도해 채권과 국내주식으로 재배분했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.163, to: 0.17 },
       { assetId: 'global-equity', from: 0.381, to: 0.33 },
@@ -175,7 +175,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '3분기 정기 리밸런싱',
     rationale:
-      '분기 정기 점검 결과 해외주식 +2.2%p, 채권 -1.9%p 이탈을 확인해 목표 비중으로 복원했습니다.',
+      '분기 정기 점검 결과 해외주식 +2.2%p, 채권 -1.9%p 이탈을 확인해 목표 비중으로 복원했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.176, to: 0.17 },
       { assetId: 'global-equity', from: 0.352, to: 0.33 },
@@ -192,7 +192,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '시장 변동성 대응 조정',
     rationale:
-      '변동성 지수(VIX)가 이틀 연속 급등해 위험 예산을 초과했습니다. 전술적 조정 한도(±3%p) 내에서 주식 비중을 줄이고 채권을 늘렸습니다.',
+      '변동성 지수(VIX)가 이틀 연속 급등해 위험 예산을 초과했어요. 전술적 조정 한도(±3%p) 내에서 주식 비중을 줄이고 채권을 늘렸어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.163, to: 0.16 },
       { assetId: 'global-equity', from: 0.318, to: 0.3 },
@@ -207,7 +207,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '2분기 정기 리밸런싱',
-    rationale: '성향 변경 후 첫 정기 점검입니다. 소폭 이탈(±1%p 이내)을 목표 비중으로 정렬했습니다.',
+    rationale: '성향 변경 후 첫 정기 점검이에요. 소폭 이탈(±1%p 이내)을 목표 비중으로 정렬했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.168, to: 0.17 },
       { assetId: 'global-equity', from: 0.338, to: 0.33 },
@@ -223,7 +223,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '투자 성향 변경 반영',
     rationale:
-      '재진단 설문에서 투자 가능 기간이 5년 미만으로 단축되어 성향이 적극투자형 → 위험중립형으로 변경되었습니다. 모델 포트폴리오를 글로벌 밸런스 50/50으로 전환했습니다.',
+      '재진단 설문에서 투자 가능 기간이 5년 미만으로 단축되어 성향이 적극투자형 → 위험중립형으로 변경됐어요. 모델 포트폴리오를 글로벌 밸런스 50/50으로 전환했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.205, to: 0.17 },
       { assetId: 'global-equity', from: 0.428, to: 0.33 },
@@ -239,7 +239,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '1분기 정기 리밸런싱',
-    rationale: '국내주식 반등으로 +1.4%p 초과된 비중을 채권으로 재배분했습니다.',
+    rationale: '국내주식 반등으로 +1.4%p 초과된 비중을 채권으로 재배분했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.214, to: 0.2 },
       { assetId: 'global-equity', from: 0.431, to: 0.42 },
@@ -255,7 +255,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '4분기 정기 리밸런싱',
-    rationale: '해외주식 +1.3%p, 채권 -1.1%p 이탈을 목표 비중으로 복원했습니다.',
+    rationale: '해외주식 +1.3%p, 채권 -1.1%p 이탈을 목표 비중으로 복원했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.207, to: 0.2 },
       { assetId: 'global-equity', from: 0.433, to: 0.42 },
@@ -271,7 +271,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '3분기 정기 리밸런싱',
-    rationale: '4월 방어적 조정을 해제하고 전략적 목표 비중으로 복귀했습니다.',
+    rationale: '4월 방어적 조정을 해제하고 전략적 목표 비중으로 복귀했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.186, to: 0.2 },
       { assetId: 'global-equity', from: 0.401, to: 0.42 },
@@ -288,7 +288,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '관세 충격 대응 조정',
     rationale:
-      '글로벌 관세 발표로 주식시장이 3거래일 연속 급락했습니다. 손실 한도 관리를 위해 주식 비중을 일시적으로 줄이고 채권·현금을 늘렸습니다.',
+      '글로벌 관세 발표로 주식시장이 3거래일 연속 급락했어요. 손실 한도 관리를 위해 주식 비중을 일시적으로 줄이고 채권·현금을 늘렸어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.196, to: 0.19 },
       { assetId: 'global-equity', from: 0.391, to: 0.38 },
@@ -303,7 +303,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '2분기 정기 리밸런싱',
-    rationale: '해외주식 +1.8%p 초과분을 국내주식과 채권으로 재배분했습니다.',
+    rationale: '해외주식 +1.8%p 초과분을 국내주식과 채권으로 재배분했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.194, to: 0.2 },
       { assetId: 'global-equity', from: 0.438, to: 0.42 },
@@ -319,7 +319,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     trigger: 'scheduled',
     status: 'completed',
     title: '1분기 정기 리밸런싱',
-    rationale: '첫 분기 운용 후 해외주식 +2.7%p 초과분을 목표 비중으로 조정했습니다.',
+    rationale: '첫 분기 운용 후 해외주식 +2.7%p 초과분을 목표 비중으로 조정했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0.188, to: 0.2 },
       { assetId: 'global-equity', from: 0.447, to: 0.42 },
@@ -336,7 +336,7 @@ export const rebalanceEvents: RebalanceEvent[] = [
     status: 'completed',
     title: '최초 포트폴리오 구성',
     rationale:
-      '설문 결과(적극투자형)에 따라 글로벌 그로스 60/40 모델 포트폴리오로 투자 원금 1억 원을 분산 매수했습니다.',
+      '설문 결과(적극투자형)에 따라 글로벌 그로스 60/40 모델 포트폴리오로 투자 원금 1억 원을 분산 매수했어요.',
     trades: [
       { assetId: 'kr-equity', from: 0, to: 0.2 },
       { assetId: 'global-equity', from: 0, to: 0.42 },
