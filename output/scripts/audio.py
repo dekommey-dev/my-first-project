@@ -13,9 +13,11 @@ BPM = 120
 BEAT = 60 / BPM
 BAR = BEAT * 4
 
-CUTS = [2.0, 4.0, 6.0, 8.5, 10.0, 12.0, 14.0, 16.0, 18.0]
-CLICKS = [6.098, 11.821, 18.08]
-END = 18.85
+CUTS = [2.0, 4.0, 5.5, 7.5, 9.0, 11.0, 13.0, 14.5, 16.0, 17.0]
+CLICKS = [5.581, 10.821, 16.114]
+END = 19.0
+SUMMARY = 17.0
+DINGS = [17.47, 17.65, 17.83]
 rng = np.random.default_rng(7)
 
 
@@ -176,6 +178,19 @@ for c in CLICKS:
     tb = np.arange(nn) / SR
     s = np.sin(2 * np.pi * 2400 * tb) * np.exp(-tb * 120) + 0.5 * hp(rng.normal(0, 1, nn), 4000) * np.exp(-tb * 300)
     add(sfx, s * 0.22, c)
+
+# ---- summary impact + row dings
+add(drums, K * 1.1, SUMMARY)
+nn = int(1.6 * SR)
+tb = np.arange(nn) / SR
+crash = hp(rng.normal(0, 1, nn), 5000) * np.exp(-tb * 3.5) * 0.06
+add(sfx, crash, SUMMARY)
+for i, dt in enumerate(DINGS):
+    nn = int(0.5 * SR)
+    tb = np.arange(nn) / SR
+    f = midi(84 + [0, 4, 7][i])
+    s = (np.sin(2 * np.pi * f * tb) + 0.25 * np.sin(2 * np.pi * 2.01 * f * tb)) * np.exp(-tb * 9)
+    add(sfx, s * np.minimum(1, tb / 0.003) * 0.07, dt)
 
 # ---- end shimmer
 nn = int((DUR - END) * SR)
