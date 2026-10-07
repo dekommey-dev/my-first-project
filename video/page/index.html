@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>MARKET LENS — 삼성전자 3Q26 & 코스피</title>
+<style>
+@font-face{font-family:"Pretendard";src:url(fonts/PretendardVariable.woff2) format("woff2");font-weight:45 920;font-display:block}
+:root{
+  --bg:#060A14; --bg2:#0B1224; --ink:#F3F5FA; --ink2:#C9CFDD; --muted:#7D879C; --line:rgba(255,255,255,.08);
+  --card:rgba(255,255,255,.045); --cardb:rgba(255,255,255,.10);
+  --blue:#3B82F6; --blue2:#1D4ED8; --cyan:#38BDF8; --gold:#FFC94D; --gold2:#F59E0B;
+  --up:#FF4D5E; --down:#3D8BFF; --green:#34D399;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard",sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.02em}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+/* ── background ── */
+#bg{position:absolute;inset:0;
+  background:
+    radial-gradient(1200px 700px at 15% 0%, rgba(59,130,246,.16), transparent 60%),
+    radial-gradient(900px 600px at 100% 100%, rgba(255,201,77,.07), transparent 60%),
+    linear-gradient(180deg,#070C19 0%,#060A14 100%)}
+#grid{position:absolute;inset:-80px;opacity:.55;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:80px 80px}
+.orb{position:absolute;border-radius:50%}
+#orb1{width:1000px;height:1000px;margin:-240px;background:radial-gradient(circle,rgba(30,64,175,.42) 0%,rgba(30,64,175,.16) 35%,rgba(30,64,175,0) 68%)}
+#orb2{width:900px;height:900px;margin:-240px;background:radial-gradient(circle,rgba(124,58,237,.18) 0%,rgba(124,58,237,.07) 35%,rgba(124,58,237,0) 68%)}
+#vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);pointer-events:none}
+
+.scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform}
+.abs{position:absolute}
+.center{left:0;right:0;text-align:center}
+.gold{color:var(--gold)} .up{color:var(--up)} .down{color:var(--down)} .cyan{color:var(--cyan)} .muted{color:var(--muted)}
+.h-title{position:absolute;left:140px;top:150px;font-size:50px;font-weight:800;letter-spacing:-.035em}
+.h-title small{display:block;font-size:24px;font-weight:600;color:var(--muted);letter-spacing:0;margin-top:10px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border:1px solid var(--cardb);border-radius:28px;
+  box-shadow:0 30px 80px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:14px 28px;border-radius:999px;background:rgba(255,201,77,.12);
+  border:1px solid rgba(255,201,77,.35);color:var(--gold);font-weight:700;font-size:30px}
+.tag{display:inline-block;padding:8px 18px;border-radius:10px;font-weight:700;font-size:24px}
+svg text{font-family:"Pretendard",sans-serif}
+
+/* ── HUD ── */
+#logo{position:absolute;left:56px;top:44px;display:flex;align-items:center;gap:14px;z-index:20}
+#logo .mk{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#3B82F6,#1E3A8A);display:grid;place-items:center;
+  box-shadow:0 8px 24px rgba(59,130,246,.45)}
+#logo .tx{font-weight:800;font-size:24px;letter-spacing:.06em;line-height:1}
+#logo .tx small{display:block;font-size:14px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-top:5px}
+#chapter{position:absolute;left:336px;top:50px;z-index:20;display:flex;align-items:center;gap:12px;padding:9px 20px 9px 16px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:21px;font-weight:700;color:var(--ink2)}
+#chapter i{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+#stamp{position:absolute;right:56px;top:52px;z-index:20;font-size:19px;font-weight:600;color:var(--muted);display:flex;gap:12px;align-items:center}
+#stamp b{color:var(--ink2);font-weight:700}
+#stamp .live{padding:6px 12px;border-radius:8px;background:rgba(255,77,94,.14);color:#FF7A86;font-weight:800;font-size:16px;letter-spacing:.08em}
+#source{position:absolute;left:58px;bottom:26px;z-index:20;font-size:17px;color:#6B7489;font-weight:500}
+#progress{position:absolute;left:0;bottom:0;height:5px;width:100%;background:rgba(255,255,255,.05);z-index:20}
+#progress .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--blue),var(--gold))}
+#progress .tick{position:absolute;top:0;bottom:0;width:3px;background:var(--bg)}
+
+/* ── subtitles ── */
+#subs{position:absolute;left:0;right:0;bottom:78px;display:flex;justify-content:center;z-index:30;pointer-events:none}
+#subs .box{max-width:1640px;padding:16px 38px 18px;border-radius:18px;background:rgba(6,10,20,.80);
+  border:1px solid rgba(255,255,255,.10);box-shadow:0 18px 50px rgba(0,0,0,.45);
+  font-size:43px;font-weight:700;line-height:1.32;text-align:center;letter-spacing:-.025em;color:#fff;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);word-break:keep-all}
+#subs .box em{font-style:normal;color:var(--gold);font-weight:850;text-shadow:0 0 22px rgba(255,201,77,.35)}
+#subs .bar{position:absolute;left:38px;right:38px;bottom:8px;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden}
+#subs .bar i{display:block;height:100%;background:linear-gradient(90deg,rgba(255,201,77,.0),rgba(255,201,77,.75))}
+
+/* ── hook ── */
+#hkLabel{top:250px;font-size:44px;font-weight:700;color:var(--ink2)}
+#hkNum{top:300px;font-size:300px;font-weight:900;line-height:1;letter-spacing:-.06em;
+  background:linear-gradient(180deg,#FFE7A3 0%,#FFC94D 45%,#F59E0B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 20px 60px rgba(245,158,11,.35))}
+#hkNum small{font-size:110px;font-weight:800;letter-spacing:-.04em;margin-left:16px}
+#hkTag{top:640px}
+#hkBrand{top:520px;font-size:30px;font-weight:700;letter-spacing:.42em;color:var(--muted)}
+#hkBrand b{display:block;font-size:120px;letter-spacing:-.04em;color:#fff;font-weight:900;margin-top:10px}
+#hkSplit{top:250px;left:210px;width:1500px;height:480px;display:flex;align-items:center;justify-content:space-between}
+.hk-card{width:640px;height:440px;padding:46px 54px;display:flex;flex-direction:column;justify-content:center}
+.hk-card .k{font-size:34px;font-weight:700;color:var(--ink2)}
+.hk-card .v{font-size:170px;font-weight:900;letter-spacing:-.05em;line-height:1.1;margin:10px 0}
+.hk-card .d{font-size:32px;font-weight:700}
+.hk-card.upc{border-color:rgba(255,77,94,.35)} .hk-card.upc .v,.hk-card.upc .d{color:var(--up)}
+.hk-card.dnc{border-color:rgba(61,139,255,.35)} .hk-card.dnc .v,.hk-card.dnc .d{color:var(--down)}
+#hkVs{font-size:56px;font-weight:900;color:var(--muted)}
+#hkTopics{top:420px;display:flex;justify-content:center;align-items:center;gap:40px}
+#hkTopics .chip{font-size:52px;padding:26px 50px;border-radius:26px}
+#hkTopics .chip.b{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.45);color:#8DB8FF}
+#hkTopics span{font-size:64px;font-weight:300;color:var(--muted)}
+
+/* ── title ── */
+#tiEyebrow{top:300px;font-size:26px;font-weight:700;letter-spacing:.38em;color:var(--cyan)}
+#tiH1{top:360px;font-size:150px;font-weight:900;letter-spacing:-.055em;line-height:1.05}
+#tiH2{top:540px;font-size:92px;font-weight:800;letter-spacing:-.045em;color:var(--ink2)}
+#tiLine{top:690px;left:760px;width:400px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--gold))}
+#tiMeta{top:730px;font-size:28px;font-weight:600;color:var(--muted);letter-spacing:.06em}
+#tiSweep{top:0;bottom:0;width:260px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-18deg)}
+
+/* ── generic chart labels ── */
+.lbl{font-size:26px;font-weight:700;fill:var(--ink2)}
+.lbl-s{font-size:22px;font-weight:600;fill:var(--muted)}
+.val{font-size:44px;font-weight:850;fill:#fff}
+.axis{stroke:rgba(255,255,255,.12);stroke-width:1.5}
+
+/* bars */
+#rev{left:290px;top:842px;width:1400px;display:flex;justify-content:space-between}
+#rev .p{width:220px;text-align:center;font-size:26px;font-weight:700;color:var(--cyan);padding:8px 0;border-radius:12px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25)}
+#rev .p small{color:var(--muted);font-weight:600;font-size:20px;margin-right:8px}
+#rev .p.hi{background:rgba(255,201,77,.14);border-color:rgba(255,201,77,.5);color:var(--gold)}
+
+/* perday */
+#pdEq{left:140px;top:300px;width:820px}
+#pdEq .a{font-size:84px;font-weight:850;letter-spacing:-.045em}
+#pdEq .b{font-size:150px;font-weight:900;letter-spacing:-.055em;line-height:1.05;margin-top:12px;color:var(--gold)}
+#pdEq .b small{font-size:60px;color:var(--ink2);font-weight:800}
+#pdEq .c{margin-top:26px}
+#pdGrid{left:1040px;top:250px;width:740px;height:560px;padding:34px 40px}
+#pdGrid .m{font-size:24px;font-weight:700;color:var(--muted);margin:14px 0 10px}
+#pdGrid .row{display:flex;flex-wrap:wrap;gap:9px}
+#pdGrid .d{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.07)}
+#pdMargin{left:1040px;top:250px;width:740px;height:560px;padding:44px 50px}
+.mrow{margin:26px 0}
+.mrow .k{font-size:28px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between}
+.mrow .k b{font-size:40px;font-weight:850}
+.mrow .tr{height:26px;border-radius:13px;background:rgba(255,255,255,.07);margin-top:12px;overflow:hidden}
+.mrow .tr i{display:block;height:100%;border-radius:13px}
+
+/* brokers / dumbbell */
+/* segment */
+#sgQ{top:300px;font-size:260px;font-weight:900;color:rgba(255,255,255,.9)}
+#sgQs{top:600px;font-size:44px;font-weight:700;color:var(--ink2)}
+#sgBarWrap{left:210px;top:420px;width:1500px;height:130px}
+#sgDS{position:absolute;left:0;top:0;bottom:0;border-radius:22px 0 0 22px;background:linear-gradient(90deg,#1D4ED8,#3B82F6 70%,#60A5FA);
+  box-shadow:0 0 60px rgba(59,130,246,.45)}
+#sgOT{position:absolute;top:0;bottom:0;right:0;border-radius:0 22px 22px 0;background:#4B5568}
+#sgDSl{left:240px;top:448px;font-size:40px;font-weight:850}
+#sgDSv{left:210px;top:270px;font-size:120px;font-weight:900;letter-spacing:-.05em}
+#sgDSv small{font-size:44px;color:var(--ink2);margin-left:10px}
+#sgOTl{right:210px;top:580px;text-align:right;font-size:26px;font-weight:600;color:var(--muted)}
+#sg98{right:210px;top:196px;font-size:136px;font-weight:900;color:var(--gold);letter-spacing:-.05em;text-align:right;line-height:1}
+#sg98 small{display:block;font-size:30px;font-weight:700;color:var(--ink2);letter-spacing:0;margin-top:6px}
+#sgGauges{left:210px;top:640px;width:1500px;display:flex;gap:40px}
+#sgGauges .g{flex:1;height:200px;display:flex;align-items:center;gap:30px;padding:0 40px}
+#sgGauges .g .t{font-size:28px;font-weight:700;color:var(--ink2)}
+#sgGauges .g .v{font-size:66px;font-weight:900;letter-spacing:-.04em}
+
+/* drivers */
+#drH{left:0;right:0;top:170px;text-align:center;font-size:52px;font-weight:850}
+.drc{position:absolute;top:290px;width:500px;height:500px;padding:46px 44px}
+.drc .no{font-size:26px;font-weight:800;color:var(--muted);letter-spacing:.1em}
+.drc .ic{height:150px;margin:18px 0 10px;display:flex;align-items:center}
+.drc .t{font-size:46px;font-weight:850;letter-spacing:-.04em}
+.drc .s{font-size:27px;font-weight:600;color:var(--ink2);margin-top:12px;line-height:1.4}
+.drc .bd{position:absolute;right:34px;top:40px;font-size:30px;font-weight:850;padding:10px 18px;border-radius:12px;background:rgba(255,77,94,.14);color:var(--up);border:1px solid rgba(255,77,94,.35)}
+
+/* seesaw */
+#ssH{left:0;right:0;top:165px;text-align:center;font-size:52px;font-weight:850}
+#ssBanner{left:360px;width:1200px;top:770px;height:80px;display:flex;align-items:center;justify-content:center;gap:24px;font-size:32px;font-weight:750;border-radius:20px}
+
+/* q4 */
+#q4L{left:140px;top:280px;width:800px;height:540px;padding:44px 50px}
+#q4R{left:990px;top:280px;width:790px;height:540px;padding:44px 50px}
+.ptitle{font-size:30px;font-weight:800}
+.ptitle small{display:block;font-size:21px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* paradox */
+#pxL{left:140px;top:280px;width:800px;height:540px;padding:44px 50px}
+#pxR{left:990px;top:280px;width:790px;height:540px;padding:44px 50px}
+#pxQ{left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,10,20,.93)}
+#pxQ .q{font-size:150px;font-weight:900;letter-spacing:-.05em}
+#pxQ .s{font-size:36px;font-weight:600;color:var(--ink2);margin-top:20px}
+
+/* checklist */
+.ckr{position:absolute;left:260px;width:1400px;height:150px;display:flex;align-items:center;gap:36px;padding:0 48px}
+.ckr .n{width:76px;height:76px;border-radius:22px;display:grid;place-items:center;font-size:38px;font-weight:900;background:rgba(59,130,246,.18);color:#93C5FD;flex:none}
+.ckr .tx{flex:1}
+.ckr .tx .w{font-size:24px;font-weight:700;color:var(--cyan);letter-spacing:.02em}
+.ckr .tx .t{font-size:44px;font-weight:850;letter-spacing:-.035em;margin-top:6px}
+.ckr .bx{width:70px;height:70px;border-radius:18px;border:3px solid rgba(255,255,255,.25);flex:none;display:grid;place-items:center}
+
+/* kospi */
+/* donut */
+#dnEq{left:0;right:0;top:770px;text-align:center;font-size:46px;font-weight:850}
+#dnStamp{left:1440px;top:300px;font-size:44px;font-weight:900;color:var(--up);border:5px solid var(--up);padding:12px 26px;border-radius:16px;transform-origin:center}
+
+/* macro */
+#mcH{left:140px;top:150px;font-size:52px;font-weight:850;display:flex;align-items:center;gap:22px}
+.mct{position:absolute;top:300px;width:385px;height:420px;padding:40px 36px}
+.mct .ic{height:90px}
+.mct .k{font-size:28px;font-weight:700;color:var(--ink2);margin-top:20px}
+.mct .v{font-size:62px;font-weight:900;letter-spacing:-.045em;margin-top:8px;line-height:1.05}
+.mct .s{font-size:23px;font-weight:600;color:var(--muted);margin-top:16px;line-height:1.45}
+
+/* band */
+#bdTitle{left:140px;top:150px}
+#bdF{left:0;right:0;top:700px;display:flex;justify-content:center;gap:30px;align-items:center}
+#bdF .fx{font-size:44px;font-weight:850;padding:22px 40px}
+#bdF .op{font-size:50px;font-weight:300;color:var(--muted)}
+
+/* calendar */
+#calW{left:140px;top:275px;width:1010px;padding:30px 34px}
+#calW .hd{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;font-size:22px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:12px}
+#calW .gd{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+#calW .c{height:92px;border-radius:16px;background:rgba(255,255,255,.04);padding:10px 14px;font-size:28px;font-weight:700;color:var(--ink2);position:relative}
+#calW .c.e{background:transparent}
+#calW .c .lb{position:absolute;left:12px;bottom:8px;font-size:16px;font-weight:800}
+#calEv{left:1200px;top:275px;width:580px}
+.ev{height:150px;margin-bottom:24px;padding:28px 34px;display:flex;flex-direction:column;justify-content:center}
+.ev .d{font-size:26px;font-weight:800}
+.ev .t{font-size:40px;font-weight:850;margin-top:6px;letter-spacing:-.03em}
+
+/* scenario */
+.scn{position:absolute;top:278px;width:500px;height:530px;padding:0;overflow:hidden}
+.scn .top{height:10px}
+.scn .in{padding:36px 40px}
+.scn .nm{font-size:30px;font-weight:850;letter-spacing:.04em}
+.scn .tg{font-size:88px;font-weight:900;letter-spacing:-.05em;margin:12px 0 4px}
+.scn .tgs{font-size:26px;font-weight:700;color:var(--ink2)}
+.scn ul{margin:28px 0 0;padding:0;list-style:none}
+.scn li{font-size:28px;font-weight:650;color:var(--ink2);padding:12px 0;border-top:1px solid rgba(255,255,255,.08)}
+#scNote{left:0;right:0;top:832px;text-align:center;font-size:22px;color:var(--muted);font-weight:600}
+
+/* outro */
+#ouH{left:0;right:0;top:160px;text-align:center;font-size:30px;font-weight:800;letter-spacing:.4em;color:var(--cyan)}
+.our{position:absolute;left:280px;width:1360px;height:130px;display:flex;align-items:center;gap:34px;padding:0 46px}
+.our .n{font-size:58px;font-weight:900;color:var(--gold);width:70px}
+.our .t{font-size:46px;font-weight:850;letter-spacing:-.035em}
+#ouSub{left:0;right:0;top:300px;display:flex;justify-content:center;gap:40px}
+#ouSub .btn{height:150px;padding:0 70px;border-radius:30px;display:flex;align-items:center;gap:24px;font-size:58px;font-weight:900}
+#ouCursor{width:60px;height:60px}
+
+/* end */
+#enLogo{top:250px;display:flex;justify-content:center;align-items:center;gap:22px}
+#enD{top:470px;font-size:30px;font-weight:700;color:var(--ink2);line-height:1.7}
+#enS{top:640px;font-size:21px;font-weight:500;color:var(--muted);line-height:1.8}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div><div id="grid"></div><div class="orb" id="orb1"></div><div class="orb" id="orb2"></div>
+
+  <!-- ═════════ HOOK ═════════ -->
+  <div class="scene" id="s-hook">
+    <div class="abs center" id="hkLabel">분기 영업이익</div>
+    <div class="abs center" id="hkNum"><span id="hkVal">0</span><small>조 원</small></div>
+    <div class="abs center" id="hkTag"><span class="chip">대한민국 기업 사상 첫 분기 100조 클럽</span></div>
+    <div class="abs center" id="hkBrand">SAMSUNG ELECTRONICS<b>삼성전자</b></div>
+    <div class="abs" id="hkSplit">
+      <div class="card hk-card upc" id="hkC1"><div class="k">3Q26E 영업이익</div><div class="v">107조</div><div class="d">▲ 전년 동기 대비 +779%</div></div>
+      <div id="hkVs">VS</div>
+      <div class="card hk-card dnc" id="hkC2"><div class="k">주가 · 6월 장중 고점 대비</div><div class="v">-27%</div><div class="d">▼ 370,000 → 271,500원</div></div>
+    </div>
+    <div class="abs center" id="hkTopics"><div class="chip" id="hkT1">삼성전자 3Q 실적 전망</div><span id="hkPlus">+</span><div class="chip b" id="hkT2">코스피 전망</div></div>
+  </div>
+
+  <!-- ═════════ TITLE ═════════ -->
+  <div class="scene" id="s-title">
+    <div class="abs" id="tiSweep"></div>
+    <div class="abs center" id="tiEyebrow">3Q26 EARNINGS PREVIEW · KOSPI OUTLOOK</div>
+    <div class="abs center" id="tiH1">삼성전자 <span class="gold">100조</span> 시대</div>
+    <div class="abs center" id="tiH2">코스피는 어디로 가나</div>
+    <div class="abs" id="tiLine"></div>
+    <div class="abs center" id="tiMeta">2026. 10. 07 · 잠정실적 발표 D-1</div>
+  </div>
+
+  <!-- ═════════ BARS ═════════ -->
+  <div class="scene" id="s-bars">
+    <div class="h-title">삼성전자 분기 영업이익 추이<small>단위: 조 원 · 연결 기준</small></div>
+    <div class="abs" style="right:140px;top:168px;display:flex;gap:28px;font-size:22px;font-weight:700;color:var(--ink2)">
+      <span><i style="display:inline-block;width:18px;height:18px;border-radius:5px;background:#3B82F6;vertical-align:-3px;margin-right:8px"></i>확정 실적</span>
+      <span><i style="display:inline-block;width:18px;height:18px;border-radius:5px;background:#FFC94D;vertical-align:-3px;margin-right:8px"></i>컨센서스(E)</span>
+    </div>
+    <svg class="abs" id="brSvg" style="left:210px;top:260px" width="1500" height="580" viewBox="0 0 1500 580"></svg>
+    <div class="abs" id="rev"></div>
+  </div>
+
+  <!-- ═════════ PER DAY ═════════ -->
+  <div class="scene" id="s-perday">
+    <div class="h-title">얼마나 큰 돈일까<small>3Q26 컨센서스 기준 환산</small></div>
+    <div class="abs" id="pdEq">
+      <div class="a" id="pdA">107조 <span class="muted">÷</span> 92일</div>
+      <div class="b" id="pdB">= <span id="pdBv">0.00</span>조<small> / 일</small></div>
+      <div class="c" id="pdC"><span class="chip">매일 약 1조 1,600억 원</span></div>
+    </div>
+    <div class="abs card" id="pdGrid"></div>
+    <div class="abs card" id="pdMargin">
+      <div class="ptitle">영업이익률<small>영업이익 ÷ 매출</small></div>
+      <div class="mrow" id="m1"><div class="k"><span>3Q25</span><b>14.1%</b></div><div class="tr"><i style="background:#4B5568"></i></div></div>
+      <div class="mrow" id="m2"><div class="k"><span>2Q26</span><b>52.2%</b></div><div class="tr"><i style="background:#3B82F6"></i></div></div>
+      <div class="mrow" id="m3"><div class="k"><span class="gold">3Q26E</span><b class="gold">53.4%</b></div><div class="tr"><i style="background:linear-gradient(90deg,#F59E0B,#FFC94D)"></i></div></div>
+    </div>
+  </div>
+
+  <!-- ═════════ BROKERS ═════════ -->
+  <div class="scene" id="s-brokers">
+    <div class="h-title">3Q26 영업이익 전망, 어디에 몰렸나<small>단위: 조 원 · ○ 기존 전망 → ● 최근 전망</small></div>
+    <svg class="abs" id="bkSvg" style="left:140px;top:270px" width="1640" height="560" viewBox="0 0 1640 560"></svg>
+  </div>
+
+  <!-- ═════════ SEGMENT ═════════ -->
+  <div class="scene" id="s-segment">
+    <div class="abs center" id="sgQ">?</div>
+    <div class="abs center" id="sgQs">107조, 누가 벌었나</div>
+    <div class="abs" id="sgDSv"><span id="sgDSn">0.0</span><small>조 원</small></div>
+    <div class="abs" id="sg98"><span id="sg98n">0</span>%<small>전체 영업이익 중 반도체 비중</small></div>
+    <div class="abs" id="sgBarWrap"><div id="sgDS"></div><div id="sgOT"></div></div>
+    <div class="abs" id="sgDSl">반도체 (DS)</div>
+    <div class="abs" id="sgOTl">그 외 사업 합계 ≈ 2.2조<br>(모바일·가전·디스플레이·하만 등)</div>
+    <div class="abs" id="sgGauges">
+      <div class="card g" id="sgG1"><svg width="150" height="90" viewBox="0 0 150 90"><path d="M15 80 A60 60 0 0 1 135 80" stroke="rgba(255,255,255,.1)" stroke-width="16" fill="none" stroke-linecap="round"/><path id="sgA1" d="M15 80 A60 60 0 0 1 135 80" stroke="#3B82F6" stroke-width="16" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/></svg>
+        <div><div class="t">DS 부문 영업이익률</div><div class="v">72~75%</div></div></div>
+      <div class="card g" id="sgG2"><svg width="150" height="90" viewBox="0 0 150 90"><path d="M15 80 A60 60 0 0 1 135 80" stroke="rgba(255,255,255,.1)" stroke-width="16" fill="none" stroke-linecap="round"/><path id="sgA2" d="M15 80 A60 60 0 0 1 135 80" stroke="#FFC94D" stroke-width="16" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/></svg>
+        <div><div class="t">D램 영업이익률 (추정)</div><div class="v gold">80%+</div></div></div>
+    </div>
+  </div>
+
+  <!-- ═════════ DRIVERS ═════════ -->
+  <div class="scene" id="s-drivers">
+    <div class="abs" id="drH">역대급 실적을 만든 <span class="gold">3가지 엔진</span></div>
+    <div class="card drc" id="dr1" style="left:140px">
+      <div class="no">01</div><div class="bd">가격 ▲</div>
+      <div class="ic"><svg width="150" height="150" viewBox="0 0 150 150"><rect x="30" y="30" width="90" height="90" rx="14" fill="rgba(59,130,246,.18)" stroke="#60A5FA" stroke-width="4"/><rect x="52" y="52" width="46" height="46" rx="6" fill="#3B82F6"/><g stroke="#60A5FA" stroke-width="5" stroke-linecap="round"><path d="M50 30v-14M75 30v-14M100 30v-14M50 120v14M75 120v14M100 120v14M30 50h-14M30 75h-14M30 100h-14M120 50h14M120 75h14M120 100h14"/></g></svg></div>
+      <div class="t">범용 D램 가격 상승</div><div class="s">DDR5 · LPDDR5X 등<br>서버·모바일용 가격 강세 지속</div>
+    </div>
+    <div class="card drc" id="dr2" style="left:710px">
+      <div class="no">02</div><div class="bd" id="dr2b">HBM 매출 +<span id="dr2n">0</span>%</div>
+      <div class="ic"><svg width="170" height="150" viewBox="0 0 170 150"><g id="hbmStack"><rect x="25" y="96" width="120" height="22" rx="6" fill="#1D4ED8"/><rect x="25" y="70" width="120" height="22" rx="6" fill="#2563EB"/><rect x="25" y="44" width="120" height="22" rx="6" fill="#3B82F6"/><rect x="25" y="18" width="120" height="22" rx="6" fill="#FFC94D"/></g><rect x="10" y="124" width="150" height="10" rx="5" fill="rgba(255,255,255,.25)"/></svg></div>
+      <div class="t">HBM4 양산 본격화</div><div class="s">6세대 고대역폭 메모리<br>3분기부터 양산·출하 확대</div>
+    </div>
+    <div class="card drc" id="dr3" style="left:1280px">
+      <div class="no">03</div><div class="bd">가격 ▲</div>
+      <div class="ic"><svg width="170" height="150" viewBox="0 0 170 150"><rect x="15" y="35" width="140" height="80" rx="14" fill="rgba(56,189,248,.14)" stroke="#38BDF8" stroke-width="4"/><rect x="32" y="52" width="40" height="46" rx="6" fill="#38BDF8"/><rect x="82" y="52" width="24" height="46" rx="5" fill="rgba(56,189,248,.5)"/><rect x="114" y="52" width="24" height="46" rx="5" fill="rgba(56,189,248,.5)"/></svg></div>
+      <div class="t">낸드 · 기업용 SSD</div><div class="s">AI 데이터센터용<br>eSSD 수요 급증, 낸드 가격 상승</div>
+    </div>
+  </div>
+
+  <!-- ═════════ SEESAW ═════════ -->
+  <div class="scene" id="s-seesaw">
+    <div class="abs" id="ssH">같은 회사, <span class="up">엇갈린</span> <span class="down">희비</span></div>
+    <svg class="abs" id="ssSvg" style="left:160px;top:230px" width="1600" height="540" viewBox="0 0 1600 540">
+      <defs><linearGradient id="gUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B78"/><stop offset="1" stop-color="#C81E3A"/></linearGradient>
+      <linearGradient id="gDn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5BA1FF"/><stop offset="1" stop-color="#1D4ED8"/></linearGradient></defs>
+      <polygon points="800,340 740,470 860,470" fill="#2A3346" stroke="rgba(255,255,255,.2)" stroke-width="2"/>
+      <rect x="560" y="470" width="480" height="10" rx="5" fill="rgba(255,255,255,.12)"/>
+      <g id="ssBeam">
+        <rect x="160" y="326" width="1280" height="20" rx="10" fill="#9AA4B8"/>
+        <g id="ssL"><rect x="190" y="146" width="380" height="180" rx="26" fill="url(#gUp)"/>
+          <text x="380" y="210" text-anchor="middle" style="font-size:34px;font-weight:800;fill:#fff">반도체 (DS)</text>
+          <text x="380" y="280" text-anchor="middle" style="font-size:56px;font-weight:900;fill:#fff">+104.8조</text></g>
+        <g id="ssR"><rect x="1030" y="146" width="380" height="180" rx="26" fill="url(#gDn)"/>
+          <text x="1220" y="210" text-anchor="middle" style="font-size:34px;font-weight:800;fill:#fff">스마트폰 (MX)</text>
+          <text id="ssRv" x="1220" y="280" text-anchor="middle" style="font-size:52px;font-weight:900;fill:#fff">적자</text></g>
+      </g>
+      <g id="ssArrow" opacity="0"><path d="M640 120 Q800 40 960 120" fill="none" stroke="#FFC94D" stroke-width="5" stroke-dasharray="10 10"/><polygon points="960,120 940,100 936,126" fill="#FFC94D"/>
+        <text x="800" y="62" text-anchor="middle" style="font-size:28px;font-weight:800;fill:#FFC94D">메모리 가격 ▲</text></g>
+    </svg>
+    <div class="abs card" id="ssBanner"><span>DS가 <b class="up">비싸게 파는</b> 메모리</span><span class="muted">=</span><span>MX가 <b class="down">비싸게 사는</b> 부품</span></div>
+  </div>
+
+  <!-- ═════════ Q4 ═════════ -->
+  <div class="scene" id="s-q4">
+    <div class="h-title">다음 분기는?<small>4Q26 전망</small></div>
+    <div class="abs card" id="q4L">
+      <div class="ptitle">4Q 메모리 가격 전망<small>전 분기 대비 상승률 · TrendForce</small></div>
+      <svg id="q4Lsvg" width="700" height="400" viewBox="0 0 700 400" style="margin-top:20px"></svg>
+    </div>
+    <div class="abs card" id="q4R">
+      <div class="ptitle">분기 영업이익<small>단위: 조 원 · 4Q는 증권가 전망</small></div>
+      <svg id="q4Rsvg" width="690" height="400" viewBox="0 0 690 400" style="margin-top:20px"></svg>
+    </div>
+  </div>
+
+  <!-- ═════════ PARADOX ═════════ -->
+  <div class="scene" id="s-paradox">
+    <div class="h-title">실적은 <span class="up">▲</span>, 주가는 <span class="down">▼</span><small>삼성전자 영업이익 vs 주가</small></div>
+    <div class="abs card" id="pxL">
+      <div class="ptitle">분기 영업이익<small>3Q25 → 3Q26E · 조 원</small></div>
+      <svg id="pxLsvg" width="700" height="400" viewBox="0 0 700 400" style="margin-top:20px"></svg>
+    </div>
+    <div class="abs card" id="pxR">
+      <div class="ptitle">주가<small>원 · 6월 장중 고점 → 10.6 종가</small></div>
+      <svg id="pxRsvg" width="690" height="400" viewBox="0 0 690 400" style="margin-top:20px"></svg>
+    </div>
+    <div class="abs" id="pxQ">
+      <div class="q">“고점은 <span class="gold">언제</span>냐?”</div>
+      <svg id="pxPeak" width="900" height="300" viewBox="0 0 900 300" style="margin-top:30px"></svg>
+      <div class="s" id="pxPeakS">피크아웃(Peak-out) : 이익 증가세가 정점을 지나는 것</div>
+    </div>
+  </div>
+
+  <!-- ═════════ CHECKLIST ═════════ -->
+  <div class="scene" id="s-checklist">
+    <div class="h-title">3분기 실적 시즌 체크포인트<small>잠정실적 10.8 · 컨퍼런스콜 10월 말 예정</small></div>
+    <div class="card ckr" id="ck1" style="top:300px"><div class="n">1</div><div class="tx"><div class="w">10.8 잠정실적</div><div class="t">영업이익, 컨센서스 <span class="gold">107조</span> 상회할까</div></div><div class="bx"><svg width="44" height="44" viewBox="0 0 44 44"><path class="ckm" d="M8 23 L18 33 L37 11" fill="none" stroke="#FFC94D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="0 100"/></svg></div></div>
+    <div class="card ckr" id="ck2" style="top:480px"><div class="n">2</div><div class="tx"><div class="w">컨퍼런스콜</div><div class="t">4Q 메모리 가격 · <span class="gold">HBM4</span> 점유율 전망</div></div><div class="bx"><svg width="44" height="44" viewBox="0 0 44 44"><path class="ckm" d="M8 23 L18 33 L37 11" fill="none" stroke="#FFC94D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="0 100"/></svg></div></div>
+    <div class="card ckr" id="ck3" style="top:660px"><div class="n">3</div><div class="tx"><div class="w">주주환원</div><div class="t">자사주 매입 종료 이후 <span class="gold">주주환원</span> 계획</div></div><div class="bx"><svg width="44" height="44" viewBox="0 0 44 44"><path class="ckm" d="M8 23 L18 33 L37 11" fill="none" stroke="#FFC94D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="0 100"/></svg></div></div>
+  </div>
+
+  <!-- ═════════ KOSPI ═════════ -->
+  <div class="scene" id="s-kospi">
+    <div class="h-title">2026 코스피, 롤러코스터<small>주요 시점 종가 · 포인트</small></div>
+    <svg class="abs" id="ksSvg" style="left:140px;top:250px" width="1640" height="600" viewBox="0 0 1640 600"></svg>
+  </div>
+
+  <!-- ═════════ DONUT ═════════ -->
+  <div class="scene" id="s-donut">
+    <div class="h-title">코스피 시가총액, 누가 차지하나<small>삼성전자(보통주) + SK하이닉스 합산 비중</small></div>
+    <svg class="abs" id="dnSvg" style="left:160px;top:230px" width="1600" height="540" viewBox="0 0 1600 540"></svg>
+    <div class="abs" id="dnStamp">코스피 ≈ 반도체 지수</div>
+    <div class="abs" id="dnEq"><span class="card" style="padding:20px 44px;border-radius:22px;display:inline-block">삼성전자 실적 <span class="gold">=</span> 코스피 실적</span></div>
+  </div>
+
+  <!-- ═════════ MACRO ═════════ -->
+  <div class="scene" id="s-macro">
+    <div class="abs" id="mcH"><svg width="76" height="60" viewBox="0 0 76 60"><path d="M20 50 h38 a14 14 0 0 0 0-28 a20 20 0 0 0-38-4 a13 13 0 0 0 0 32z" fill="#4B5568" stroke="#9AA4B8" stroke-width="3"/><path d="M30 54 l-4 6 M44 54 l-4 6 M58 54 l-4 6" stroke="#5BA1FF" stroke-width="4" stroke-linecap="round"/></svg>바깥 날씨: <span class="muted">흐림</span></div>
+    <div class="card mct" id="mc1" style="left:140px"><div class="ic"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="40" fill="rgba(255,77,94,.15)" stroke="#FF4D5E" stroke-width="3"/><text x="45" y="58" text-anchor="middle" style="font-size:38px;font-weight:900;fill:#FF4D5E">%</text></svg></div>
+      <div class="k">미 연준 기준금리</div><div class="v up" style="font-size:50px;padding:6px 0">3.75~4.00%</div><div class="s">9월 FOMC +25bp<br>3년여 만의 첫 인상 · 추가 인상 시사</div></div>
+    <div class="card mct" id="mc2" style="left:550px"><div class="ic"><svg width="90" height="90" viewBox="0 0 90 90"><path d="M45 8 C60 32 72 46 72 60 a27 27 0 0 1-54 0 C18 46 30 32 45 8z" fill="rgba(255,201,77,.15)" stroke="#FFC94D" stroke-width="3"/></svg></div>
+      <div class="k">브렌트유 (배럴당)</div><div class="v gold">$100+</div><div class="s">중동 지정학 리스크<br>한때 $104 돌파</div></div>
+    <div class="card mct" id="mc3" style="left:960px"><div class="ic"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="40" fill="rgba(56,189,248,.14)" stroke="#38BDF8" stroke-width="3"/><text x="45" y="60" text-anchor="middle" style="font-size:42px;font-weight:900;fill:#38BDF8">₩</text></svg></div>
+      <div class="k">원/달러 환율</div><div class="v cyan">1,380원대</div><div class="s">9월 FOMC 직후<br>1,382원까지 상승</div></div>
+    <div class="card mct" id="mc4" style="left:1370px;width:410px"><div class="ic"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="40" fill="rgba(61,139,255,.15)" stroke="#3D8BFF" stroke-width="3"/><path d="M45 24 v40 M30 50 l15 15 l15 -15" stroke="#3D8BFF" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="k">외국인 순매도 (10.6)</div><div class="v down">-1.77조</div><div class="s">유가증권시장 하루 기준<br>자사주 매입 종료 경계감</div></div>
+  </div>
+
+  <!-- ═════════ BAND ═════════ -->
+  <div class="scene" id="s-band">
+    <div class="h-title" id="bdTitle">10월 코스피 예상 밴드<small>한국투자증권 · 12개월 선행 PER 5~6배 구간</small></div>
+    <svg class="abs" id="bdSvg" style="left:140px;top:300px" width="1640" height="360" viewBox="0 0 1640 360"></svg>
+    <div class="abs" id="bdF">
+      <div class="card fx">코스피</div><div class="op">=</div>
+      <div class="card fx" id="bdEps">이익 <span class="muted" style="font-size:30px">EPS</span> <span class="gold" id="bdQ">?</span></div><div class="op">×</div>
+      <div class="card fx">PER <span class="cyan">5~6배</span></div>
+    </div>
+  </div>
+
+  <!-- ═════════ CALENDAR ═════════ -->
+  <div class="scene" id="s-calendar">
+    <div class="h-title">10월 빅 이벤트<small>2026년 10월</small></div>
+    <div class="abs card" id="calW"><div class="hd"><span style="color:#FF7A86">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span style="color:#7FB0FF">토</span></div><div class="gd" id="calG"></div></div>
+    <div class="abs" id="calEv">
+      <div class="card ev" id="ev1"><div class="d gold">10.8 (목)</div><div class="t">삼성전자 3Q 잠정실적</div></div>
+      <div class="card ev" id="ev2"><div class="d cyan">10.22 (목)</div><div class="t">한국은행 금통위</div></div>
+      <div class="card ev" id="ev3"><div class="d up">10.27~28 (화~수)</div><div class="t">미국 FOMC</div></div>
+    </div>
+  </div>
+
+  <!-- ═════════ SCENARIO ═════════ -->
+  <div class="scene" id="s-scenario">
+    <div class="h-title">코스피 시나리오<small>10월 밴드(6,400~7,600) 기준 · 채널 자체 시나리오</small></div>
+    <div class="card scn" id="sc1" style="left:140px"><div class="top" style="background:var(--up)"></div><div class="in">
+      <div class="nm up">BULL · 강세</div><div class="tg up">7,600</div><div class="tgs">밴드 상단 도전</div>
+      <ul><li>3Q 실적 서프라이즈</li><li>4Q 메모리 가이던스 강세</li><li>유가 안정 · 외국인 복귀</li></ul></div></div>
+    <div class="card scn" id="sc2" style="left:710px"><div class="top" style="background:var(--gold)"></div><div class="in">
+      <div class="nm gold">BASE · 기본</div><div class="tg gold">7,000±</div><div class="tgs">박스권 등락</div>
+      <ul><li>실적 컨센서스 부합</li><li>고금리 · 고유가 부담 지속</li><li>업종별 순환매</li></ul></div></div>
+    <div class="card scn" id="sc3" style="left:1280px"><div class="top" style="background:var(--down)"></div><div class="in">
+      <div class="nm down">BEAR · 약세</div><div class="tg down">6,400</div><div class="tgs">밴드 하단 테스트</div>
+      <ul><li>피크아웃 논란 재점화</li><li>연준 추가 금리 인상</li><li>외국인 매도 지속</li></ul></div></div>
+    <div class="abs" id="scNote">※ 특정 종목·지수에 대한 투자 권유가 아닙니다</div>
+  </div>
+
+  <!-- ═════════ OUTRO ═════════ -->
+  <div class="scene" id="s-outro">
+    <div class="abs" id="ouH">SUMMARY</div>
+    <div class="card our" id="ou1" style="top:250px"><div class="n">1</div><div class="t">3Q 영업이익 <span class="gold">≈107조</span>, 의심할 여지 없는 역대급</div></div>
+    <div class="card our" id="ou2" style="top:410px"><div class="n">2</div><div class="t">주가는 숫자가 아니라 <span class="gold">기대와의 차이</span>로 움직인다</div></div>
+    <div class="card our" id="ou3" style="top:570px"><div class="n">3</div><div class="t">이제는 100조 <span class="gold">그다음 숫자</span>를 볼 때</div></div>
+    <div class="abs" id="ouSub">
+      <div class="btn" id="ouLike" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18)"><svg width="64" height="64" viewBox="0 0 24 24"><path d="M2 21h4V9H2v12zm20-11a2 2 0 0 0-2-2h-6.3l.95-4.57.03-.32a1.5 1.5 0 0 0-.44-1.06L13.17 1 6.59 7.59A2 2 0 0 0 6 9v10a2 2 0 0 0 2 2h9a2 2 0 0 0 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z" fill="#fff"/></svg>좋아요</div>
+      <div class="btn" id="ouSubB" style="background:#E62E3D">구독</div>
+    </div>
+    <svg class="abs" id="ouCursor" viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.5 L12 13.7 L19 13.7 Z" fill="#fff" stroke="#000" stroke-width="1.2"/></svg>
+  </div>
+
+  <!-- ═════════ END ═════════ -->
+  <div class="scene" id="s-end">
+    <div class="abs center" id="enLogo"><div style="width:96px;height:96px;border-radius:26px;background:linear-gradient(135deg,#3B82F6,#1E3A8A);display:grid;place-items:center;box-shadow:0 20px 50px rgba(59,130,246,.45)"><svg width="54" height="54" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M15.5 15.5 L21 21" stroke="#FFC94D" stroke-width="3" stroke-linecap="round"/><path d="M7.5 12.5 l2-2.5 l2 1.5 l2.5-3.5" fill="none" stroke="#FFC94D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="text-align:left"><div style="font-size:58px;font-weight:900;letter-spacing:.05em">MARKET LENS</div><div style="font-size:26px;color:var(--muted);font-weight:600">숫자로 읽는 경제, 마켓렌즈</div></div></div>
+    <div class="abs center" id="enD">본 영상은 정보 제공 목적이며 투자 권유가 아닙니다.<br>투자 판단과 그 결과에 대한 책임은 투자자 본인에게 있습니다.</div>
+    <div class="abs center" id="enS">데이터 기준 2026.10.07 (삼성전자 3Q26 잠정실적 발표 전) · 전망치는 발표 실적과 다를 수 있습니다<br>
+      자료: 삼성전자 IR · FnGuide · LSEG · 한국거래소 · TrendForce · 미 연준 · 한국은행 · 한국투자증권 · 각 증권사 리포트 및 언론 보도</div>
+  </div>
+
+  <div id="vignette"></div>
+
+  <!-- HUD -->
+  <div id="logo"><div class="mk"><svg width="28" height="28" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M15.5 15.5 L21 21" stroke="#FFC94D" stroke-width="3" stroke-linecap="round"/><path d="M7.5 12.5 l2-2.5 l2 1.5 l2.5-3.5" fill="none" stroke="#FFC94D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="tx">MARKET LENS<small>마켓렌즈</small></div></div>
+  <div id="chapter"><i></i><span id="chapterTx"></span></div>
+  <div id="stamp"><span class="live">PREVIEW</span><span><b>2026.10.07</b> 기준</span></div>
+  <div id="source"></div>
+  <div id="subs"><div class="box" id="subBox"><span id="subTx"></span><div class="bar"><i id="subBar"></i></div></div></div>
+  <div id="progress"><div class="fill" id="progFill"></div></div>
+</div>
+
+<script src="timeline.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  out: t => 1 - Math.pow(1 - t, 3),
+  inOut: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  back: t => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  expo: t => t >= 1 ? 1 : 1 - Math.pow(2, -10 * t),
+  lin: t => t,
+};
+const P = (t, a, d = .6, e = E.out) => e(clamp((t - a) / d));
+const fmt = (v, d = 0) => v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const NS = "http://www.w3.org/2000/svg";
+function S(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function T(parent, x, y, txt, cls, extra = {}) { const e = S("text", Object.assign({ x, y, class: cls || "" }, extra), parent); e.textContent = txt; return e; }
+function show(el, p, dy = 36, sc) { el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px)` + (sc != null ? ` scale(${sc})` : ""); }
+function fadeOnly(el, p) { el.style.opacity = p; }
+const win = (t, a, b, fi = .5, fo = .4) => P(t, a, fi) * (1 - P(t, b, fo, E.inOut));
+
+const TL = window.TL;
+TL.scenes.forEach(s => {
+  s.c = i => (s.lines[i] ? s.lines[i].start : s.start);
+  s.e = i => (s.lines[i] ? s.lines[i].end : s.end);
+  s.f = (i, fr) => s.c(i) + (s.e(i) - s.c(i)) * fr;
+});
+const SC = Object.fromEntries(TL.scenes.map(s => [s.id, s]));
+
+/* ═════════════ scene builders ═════════════ */
+const B = {};
+const U = {};
+
+/* HOOK */
+U.hook = (t, s) => {
+  const out1 = P(t, s.c(2), .7, E.inOut);
+  const outAll = P(t, s.c(3), .5, E.inOut);
+  const pin = P(t, s.c(0) - .1, .6);
+  show($("#hkLabel"), pin * (1 - out1), 30);
+  const cnt = P(t, s.c(0), 1.9, E.expo);
+  $("#hkVal").textContent = Math.round(cnt * 100);
+  const n = $("#hkNum");
+  n.style.opacity = pin * (1 - outAll);
+  n.style.transform = `translateY(${(1 - pin) * 40 - out1 * 170}px) scale(${lerp(1, .55, out1) * (1 + .03 * Math.sin(t * 3) * (1 - out1))})`;
+  show($("#hkTag"), P(t, s.c(1), .6, E.back) * (1 - out1), 30);
+  const br = P(t, s.c(2) + .15, .7);
+  const brOut = P(t, s.c(3), .5, E.inOut);
+  show($("#hkBrand"), br * (1 - brOut), 40);
+  const sp = P(t, s.c(3) + .1, .7), spOut = P(t, s.c(4), .5, E.inOut);
+  $("#hkSplit").style.opacity = 1 - spOut;
+  show($("#hkC1"), sp, 60);
+  show($("#hkC2"), P(t, s.c(3) + .9, .7), 60);
+  fadeOnly($("#hkVs"), P(t, s.c(3) + .6, .5));
+  const tp = P(t, s.c(4) + .15, .6, E.back);
+  show($("#hkT1"), tp, 40);
+  fadeOnly($("#hkPlus"), P(t, s.c(5), .4));
+  show($("#hkT2"), P(t, s.c(5) + .1, .6, E.back), 40);
+};
+
+/* TITLE */
+U.title = (t, s) => {
+  const l = t - s.start;
+  show($("#tiEyebrow"), P(l, .25, .6), 20);
+  show($("#tiH1"), P(l, .4, .8), 50);
+  show($("#tiH2"), P(l, .75, .8), 50);
+  const ln = P(l, 1.1, .9, E.inOut); $("#tiLine").style.transform = `scaleX(${ln})`; $("#tiLine").style.opacity = ln;
+  show($("#tiMeta"), P(l, 1.4, .6), 20);
+  $("#tiSweep").style.left = (lerp(-400, 2200, clamp((l - .6) / 2.2))) + "px";
+};
+
+/* BARS */
+const BR = { data: [["3Q25", 12.2, 86.1], ["4Q25", 20.0, 93.9], ["1Q26", 57.2, 133.9], ["2Q26", 89.5, 171.5], ["3Q26E", 107.0, 200.3]], H: 440, base: 500, max: 115 };
+B.bars = () => {
+  const svg = $("#brSvg");
+  const defs = S("defs", {}, svg);
+  const g1 = S("linearGradient", { id: "gb", x1: 0, y1: 0, x2: 0, y2: 1 }, defs); S("stop", { offset: 0, "stop-color": "#60A5FA" }, g1); S("stop", { offset: 1, "stop-color": "#1D4ED8" }, g1);
+  const g2 = S("linearGradient", { id: "gg", x1: 0, y1: 0, x2: 0, y2: 1 }, defs); S("stop", { offset: 0, "stop-color": "#FFE08A" }, g2); S("stop", { offset: 1, "stop-color": "#F59E0B" }, g2);
+  const flt = S("filter", { id: "glow", x: "-50%", y: "-50%", width: "200%", height: "200%" }, defs); S("feGaussianBlur", { stdDeviation: 18 }, flt);
+  [25, 50, 75, 100].forEach(v => { const y = BR.base - v / BR.max * BR.H; S("line", { x1: 60, x2: 1480, y1: y, y2: y, class: "axis", "stroke-dasharray": "4 8" }, svg); T(svg, 40, y + 8, v, "lbl-s", { "text-anchor": "end" }); });
+  S("line", { x1: 60, x2: 1480, y1: BR.base, y2: BR.base, stroke: "rgba(255,255,255,.3)", "stroke-width": 2 }, svg);
+  BR.els = BR.data.map((d, i) => {
+    const cx = 160 + i * 290, w = 170, est = i === 4;
+    const g = S("g", {}, svg);
+    const glow = S("rect", { x: cx - w / 2, width: w, rx: 16, fill: est ? "#F59E0B" : "#3B82F6", filter: "url(#glow)", opacity: .0 }, g);
+    const r = S("rect", { x: cx - w / 2, width: w, rx: 16, fill: est ? "url(#gg)" : "url(#gb)" }, g);
+    if (est) r.setAttribute("stroke", "#FFE7A3"), r.setAttribute("stroke-width", 3), r.setAttribute("stroke-dasharray", "10 7");
+    const v = T(g, cx, 0, "", "val", { "text-anchor": "middle" }); if (est) v.style.fill = "#FFC94D", v.style.fontSize = "56px";
+    T(g, cx, BR.base + 46, d[0], "lbl", { "text-anchor": "middle" }).style.fill = est ? "#FFC94D" : "";
+    return { g, r, glow, v, cx, w, val: d[1] };
+  });
+  const a = S("g", { opacity: 0 }, svg); BR.arrow = a;
+  const x0 = BR.els[0].cx, x4 = BR.els[4].cx, y0 = BR.base - 12.2 / BR.max * BR.H - 80, y4 = BR.base - 107 / BR.max * BR.H - 76;
+  BR.arrowPath = S("path", { d: `M${x0} ${y0} C ${x0 + 60} ${y0 - 300}, ${x4 - 600} ${y4 - 60}, ${x4 - 110} ${y4 + 6}`, fill: "none", stroke: "#FF4D5E", "stroke-width": 5, "stroke-linecap": "round", pathLength: 100, "stroke-dasharray": "0 100" }, a);
+  BR.arrowHead = S("polygon", { points: `${x4 - 100},${y4 + 6} ${x4 - 128},${y4 - 10} ${x4 - 124},${y4 + 22}`, fill: "#FF4D5E", opacity: 0 }, a);
+  const bx = 40, by = -10;
+  BR.badge = S("g", { opacity: 0 }, a);
+  S("rect", { x: bx, y: by, width: 320, height: 96, rx: 20, fill: "rgba(255,77,94,.14)", stroke: "#FF4D5E", "stroke-width": 2 }, BR.badge);
+  T(BR.badge, bx + 160, by + 50, "1년 새 약 9배", "", { "text-anchor": "middle", style: "font-size:38px;font-weight:900;fill:#FF6B78" });
+  T(BR.badge, bx + 160, by + 82, "+779% YoY", "", { "text-anchor": "middle", style: "font-size:22px;font-weight:700;fill:#FF9AA3" });
+  const rev = $("#rev");
+  BR.data.forEach((d, i) => { const p = document.createElement("div"); p.className = "p" + (i === 4 ? " hi" : ""); p.innerHTML = `<small>매출</small>${fmt(d[2], 1)}조`; rev.appendChild(p); });
+};
+U.bars = (t, s) => {
+  const at = [s.f(1, .45), s.f(2, .12), s.f(2, .62), s.f(3, .2), s.f(4, .55)];
+  BR.els.forEach((b, i) => {
+    const p = P(t, at[i], 1.0, E.back), pv = P(t, at[i], 1.0, E.out);
+    const h = Math.max(0, b.val / BR.max * BR.H * p);
+    b.r.setAttribute("y", BR.base - h); b.r.setAttribute("height", h);
+    b.glow.setAttribute("y", BR.base - h); b.glow.setAttribute("height", h);
+    b.glow.setAttribute("opacity", (i === 4 ? .55 : .18) * pv);
+    b.v.setAttribute("y", BR.base - h - 22); b.v.style.opacity = pv;
+    b.v.textContent = fmt(b.val * pv, 1);
+    b.g.style.opacity = t < at[i] ? 0 : 1;
+  });
+  const ap = P(t, s.c(5), 1.0, E.inOut);
+  BR.arrow.setAttribute("opacity", t >= s.c(5) ? 1 : 0);
+  BR.arrowPath.setAttribute("stroke-dasharray", `${ap * 100} 100`);
+  BR.arrowHead.setAttribute("opacity", P(t, s.c(5) + .9, .2));
+  const bp = P(t, s.c(5) + .5, .6, E.back);
+  BR.badge.setAttribute("opacity", bp); BR.badge.setAttribute("transform", `translate(0 ${(1 - bp) * 20})`);
+  [...$("#rev").children].forEach((c, i) => show(c, P(t, s.c(6) + i * .12, .5), 24));
+};
+
+/* PER DAY */
+B.perday = () => {
+  const g = $("#pdGrid");
+  g.innerHTML = `<div class="ptitle">3분기 = 92일<small>하루하루 쌓인 영업이익</small></div>`;
+  [["7월", 31], ["8월", 31], ["9월", 30]].forEach(([m, n]) => {
+    const mm = document.createElement("div"); mm.className = "m"; mm.textContent = m; g.appendChild(mm);
+    const row = document.createElement("div"); row.className = "row";
+    for (let i = 0; i < n; i++) { const d = document.createElement("div"); d.className = "d"; row.appendChild(d); }
+    g.appendChild(row);
+  });
+};
+U.perday = (t, s) => {
+  show($("#pdA"), P(t, s.c(0) + .2, .6), 30);
+  const bp = P(t, s.c(1) + .3, 1.6, E.expo);
+  show($("#pdB"), P(t, s.c(1) + .2, .5), 30);
+  $("#pdBv").textContent = fmt(1.163 * bp, 2);
+  show($("#pdC"), P(t, s.c(2), .6, E.back), 30);
+  const swap = P(t, s.c(3), .6, E.inOut);
+  const g = $("#pdGrid"); show(g, P(t, s.c(0) + .4, .7) * (1 - swap), 40);
+  const dots = g.querySelectorAll(".d"), fill = clamp((t - s.c(1)) / 2.6);
+  dots.forEach((d, i) => { const on = i / 92 < fill; d.style.background = on ? "linear-gradient(180deg,#FFE08A,#F59E0B)" : "rgba(255,255,255,.07)"; d.style.boxShadow = on ? "0 0 14px rgba(255,201,77,.45)" : "none"; });
+  const m = $("#pdMargin"); show(m, P(t, s.c(3) + .2, .7), 40);
+  [[1, 14.1], [2, 52.2], [3, 53.4]].forEach(([k, v], i) => { const p = P(t, s.c(3) + .5 + i * .35, .9); $("#m" + k + " i").style.width = (v / 60 * 100 * p) + "%"; });
+};
+
+/* BROKERS */
+const BK = { rows: [["유진투자증권", 103.6], ["씨티", 104.1, 115.5], ["골드만삭스", 106.0], ["LSEG (21명 평균)", 106.1], ["FnGuide 컨센서스", 107.0], ["키움증권", 107.0, 122.0]], x0: 430, x1: 1600, v0: 100, v1: 125 };
+const bx = v => BK.x0 + (v - BK.v0) / (BK.v1 - BK.v0) * (BK.x1 - BK.x0);
+B.brokers = () => {
+  const svg = $("#bkSvg");
+  BK.band = S("rect", { x: bx(104), y: 0, width: bx(107) - bx(104), height: 500, rx: 12, fill: "rgba(255,201,77,.13)", stroke: "rgba(255,201,77,.45)", "stroke-dasharray": "6 6" }, svg);
+  BK.bandT = T(svg, (bx(104) + bx(107)) / 2, 535, "104~107조에 집중", "", { "text-anchor": "middle", style: "font-size:24px;font-weight:800;fill:#FFC94D" });
+  [100, 105, 110, 115, 120, 125].forEach(v => { S("line", { x1: bx(v), x2: bx(v), y1: 0, y2: 500, class: "axis" }, svg); T(svg, bx(v), -12, v, "lbl-s", { "text-anchor": "middle" }); });
+  BK.els = BK.rows.map((r, i) => {
+    const y = 45 + i * 80, g = S("g", { opacity: 0 }, svg);
+    T(g, BK.x0 - 40, y + 9, r[0], "lbl", { "text-anchor": "end" });
+    S("line", { x1: BK.x0, x2: BK.x1, y1: y, y2: y, stroke: "rgba(255,255,255,.06)", "stroke-width": 2 }, g);
+    const o = {}; o.g = g; o.y = y;
+    if (r[2]) {
+      o.old = S("circle", { cx: bx(r[2]), cy: y, r: 13, fill: "none", stroke: "#9AA4B8", "stroke-width": 3, opacity: 0 }, svg);
+      o.oldT = T(svg, bx(r[2]) + 24, y + 8, r[2].toFixed(1), "lbl-s", { opacity: 0 });
+      o.ln = S("line", { x1: bx(r[2]), x2: bx(r[2]), y1: y, y2: y, stroke: "#FF4D5E", "stroke-width": 4, "stroke-linecap": "round", opacity: 0 }, svg);
+    }
+    o.dot = S("circle", { cx: bx(r[1]), cy: y, r: 15, fill: i === 4 ? "#FFC94D" : "#3B82F6", stroke: "#0B1224", "stroke-width": 3 }, g);
+    o.vt = T(g, bx(r[1]) - 26, y + 8, r[1].toFixed(1), "", { "text-anchor": "end", style: "font-size:24px;font-weight:800;fill:#fff" });
+    o.r = r; return o;
+  });
+  BK.cons = S("g", { opacity: 0 }, svg);
+  S("line", { x1: bx(107), x2: bx(107), y1: -4, y2: 505, stroke: "#FFC94D", "stroke-width": 3, "stroke-dasharray": "10 8" }, BK.cons);
+};
+U.brokers = (t, s) => {
+  fadeOnly(BK.band, P(t, s.c(0) + 1.4, .6)); fadeOnly(BK.bandT, P(t, s.c(0) + 1.6, .6));
+  BK.els.forEach((o, i) => {
+    const p = P(t, s.c(0) + .1 + i * .16, .5);
+    o.g.setAttribute("opacity", p); o.g.setAttribute("transform", `translate(${(1 - p) * -30} 0)`);
+    o.dot.setAttribute("r", 15 * E.back(clamp((t - s.c(0) - .1 - i * .16) / .5)));
+    if (o.old) {
+      const st = s.c(1) + (o.r[0] === "키움증권" ? s.e(1) - s.c(1) : 0) * .5;
+      const po = P(t, st, .4), pl = P(t, st + .4, .9, E.inOut);
+      o.old.setAttribute("opacity", po); o.oldT.setAttribute("opacity", po);
+      o.ln.setAttribute("opacity", po); o.ln.setAttribute("x2", lerp(bx(o.r[2]), bx(o.r[1]) + 16, pl));
+    }
+  });
+  BK.cons.setAttribute("opacity", P(t, s.c(2), .6) * .9);
+};
+
+/* SEGMENT */
+U.segment = (t, s) => {
+  const qOut = P(t, s.c(1), .5, E.inOut);
+  show($("#sgQ"), P(t, s.c(0), .6, E.back) * (1 - qOut), 40);
+  show($("#sgQs"), P(t, s.c(0) + .3, .6) * (1 - qOut), 30);
+  const bp = P(t, s.c(1) + .3, 1.3, E.inOut);
+  const W = 1500, ds = 104.8 / 107 * W;
+  fadeOnly($("#sgBarWrap"), P(t, s.c(1) + .2, .3));
+  $("#sgDS").style.width = (ds * bp) + "px";
+  $("#sgOT").style.width = (W - ds) * P(t, s.c(1) + 1.4, .5) + "px";
+  show($("#sgDSl"), P(t, s.c(1) + .9, .5), 10);
+  show($("#sgOTl"), P(t, s.c(1) + 1.6, .5), 10);
+  const vp = P(t, s.c(2), 1.4, E.expo);
+  show($("#sgDSv"), P(t, s.c(2), .5), 30); $("#sgDSn").textContent = fmt(104.8 * vp, 1);
+  const pp = P(t, s.c(3), 1.2, E.expo);
+  show($("#sg98"), P(t, s.c(3), .5, E.back), 30); $("#sg98n").textContent = Math.round(97.9 * pp + 0.1);
+  show($("#sgG1"), P(t, s.c(4), .6), 40); show($("#sgG2"), P(t, s.c(4) + .3, .6), 40);
+  $("#sgA1").setAttribute("stroke-dasharray", `${73.5 * P(t, s.c(4) + .3, 1)} 100`);
+  $("#sgA2").setAttribute("stroke-dasharray", `${82 * P(t, s.c(4) + .6, 1)} 100`);
+};
+
+/* DRIVERS */
+U.drivers = (t, s) => {
+  show($("#drH"), P(t, s.c(0), .6), 30);
+  const c = [s.c(1), s.c(2), s.c(4)];
+  [1, 2, 3].forEach((k, i) => {
+    const p = P(t, c[i], .7, E.out), el = $("#dr" + k);
+    show(el, p, 70);
+    const active = (k === 1 && t < s.c(2)) || (k === 2 && t >= s.c(2) && t < s.c(4)) || (k === 3 && t >= s.c(4));
+    el.style.borderColor = active ? "rgba(255,201,77,.6)" : "rgba(255,255,255,.10)";
+    el.style.boxShadow = active ? "0 30px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(255,201,77,.25), 0 0 60px rgba(255,201,77,.12)" : "";
+  });
+  $("#dr2n").textContent = Math.round(60 * P(t, s.c(3), 1.2, E.expo));
+  const hb = $("#hbmStack"); hb.setAttribute("transform", `translate(0 ${-6 * Math.sin(t * 2.2) * P(t, s.c(2), .5)})`);
+};
+
+/* SEESAW */
+U.seesaw = (t, s) => {
+  show($("#ssH"), P(t, s.c(0), .6), 30);
+  const tilt = P(t, s.c(1) + .4, 1.3, E.back) * 9;
+  $("#ssBeam").setAttribute("transform", `rotate(${tilt} 800 336)`);
+  const keep = `rotate(${-tilt} `;
+  $("#ssL").setAttribute("transform", `rotate(${-tilt} 380 326)`);
+  $("#ssR").setAttribute("transform", `rotate(${-tilt} 1220 326)`);
+  $("#ssArrow").setAttribute("opacity", P(t, s.c(1), .6));
+  const lv = P(t, s.c(2), 1.0);
+  $("#ssRv").textContent = t < s.c(2) ? "적자" : `-${fmt(1.2 * lv, 1)}~${fmt(1.7 * lv, 1)}조`;
+  show($("#ssBanner"), P(t, s.c(3), .6), 30);
+  $("#ssSvg").style.opacity = P(t, s.c(0) + .2, .6);
+};
+
+/* Q4 */
+B.q4 = () => {
+  const L = $("#q4Lsvg"), x = v => 150 + v / 25 * 380;
+  const dq = S("defs", {}, L), gq = S("linearGradient", { id: "gq4", x1: 0, y1: 0, x2: 1, y2: 0 }, dq); S("stop", { offset: 0, "stop-color": "#C81E3A" }, gq); S("stop", { offset: 1, "stop-color": "#FF6B78" }, gq);
+  [0, 5, 10, 15, 20, 25].forEach(v => { S("line", { x1: x(v), x2: x(v), y1: 20, y2: 330, class: "axis" }, L); T(L, x(v), 370, v + "%", "lbl-s", { "text-anchor": "middle" }); });
+  Q4.rows = [["범용 D램", 10, 15, 90], ["낸드", 15, 20, 230]].map(([n, a, b, y]) => {
+    T(L, 130, y + 10, n, "lbl", { "text-anchor": "end" });
+    const r = S("rect", { x: x(a), y: y - 32, width: 0, height: 64, rx: 14, fill: "url(#gq4)" }, L);
+    const tx = T(L, x(b) + 18, y + 12, `+${a}~${b}%`, "", { style: "font-size:34px;font-weight:900;fill:#FF6B78", opacity: 0 });
+    return { r, tx, w: x(b) - x(a) };
+  });
+  const R = $("#q4Rsvg"), base = 330, H = 270, mx = 125;
+  Q4.bars = [["2Q26", 89.5, 0], ["3Q26E", 107, 1], ["4Q26E", 120, 2]].map(([n, v, k], i) => {
+    const cx = 130 + i * 215, w = 140, h = v / mx * H;
+    const r = S("rect", { x: cx - w / 2, y: base, width: w, height: 0, rx: 14, fill: k === 0 ? "#3B82F6" : k === 1 ? "#FFC94D" : "rgba(255,201,77,.18)" }, R);
+    if (k === 2) r.setAttribute("stroke", "#FFC94D"), r.setAttribute("stroke-width", 3), r.setAttribute("stroke-dasharray", "10 8");
+    const vt = T(R, cx, 0, k === 2 ? "120±" : fmt(v, 1), "val", { "text-anchor": "middle", opacity: 0 }); if (k) vt.style.fill = "#FFC94D";
+    T(R, cx, base + 40, n, "lbl", { "text-anchor": "middle" });
+    return { r, vt, h };
+  });
+  S("line", { x1: 30, x2: 680, y1: base, y2: base, stroke: "rgba(255,255,255,.3)", "stroke-width": 2 }, R);
+};
+const Q4 = {};
+U.q4 = (t, s) => {
+  show($("#q4L"), P(t, s.c(0) + .2, .7), 40); show($("#q4R"), P(t, s.c(0) + .5, .7), 40);
+  [s.c(1) + .5, s.c(2) + .2].forEach((a, i) => { const p = P(t, a, .9, E.out), o = Q4.rows[i]; o.r.setAttribute("width", o.w * p); o.tx.setAttribute("opacity", P(t, a + .5, .4)); });
+  [s.c(0) + .7, s.c(0) + 1.0, s.c(3) + .9].forEach((a, i) => {
+    const p = P(t, a, 1.0, E.back), o = Q4.bars[i], h = Math.max(0, o.h * p);
+    o.r.setAttribute("y", 330 - h); o.r.setAttribute("height", h); o.vt.setAttribute("y", 330 - h - 20); o.vt.setAttribute("opacity", P(t, a + .3, .5));
+    o.r.style.opacity = t < a ? 0 : 1;
+  });
+};
+
+/* PARADOX */
+const PX = {};
+B.paradox = () => {
+  const L = $("#pxLsvg"), base = 340, H = 300;
+  PX.lb = BR.data.map((d, i) => {
+    const cx = 80 + i * 135, w = 90, h = d[1] / 110 * H;
+    const r = S("rect", { x: cx - w / 2, y: base, width: w, height: 0, rx: 10, fill: i === 4 ? "#FFC94D" : "#FF4D5E", opacity: i === 4 ? 1 : .55 + i * .1 }, L);
+    T(L, cx, base + 36, d[0], "lbl-s", { "text-anchor": "middle" });
+    return { r, h };
+  });
+  PX.lbArrow = T(L, 600, 70, "사상 최대 ▲", "", { "text-anchor": "end", style: "font-size:34px;font-weight:900;fill:#FF6B78", opacity: 0 });
+  const R = $("#pxRsvg"), y = v => 340 - (v - 240000) / (390000 - 240000) * 300;
+  [250000, 300000, 350000].forEach(v => { S("line", { x1: 60, x2: 680, y1: y(v), y2: y(v), class: "axis", "stroke-dasharray": "4 8" }, R); T(R, 50, y(v) + 7, (v / 10000) + "만", "lbl-s", { "text-anchor": "end" }); });
+  PX.p0 = [120, y(370000)]; PX.p1 = [600, y(271500)];
+  PX.line = S("path", { d: `M${PX.p0[0]} ${PX.p0[1]} C 300 ${PX.p0[1] + 30}, 380 ${PX.p1[1] - 10}, ${PX.p1[0]} ${PX.p1[1]}`, fill: "none", stroke: "#3D8BFF", "stroke-width": 6, "stroke-linecap": "round", pathLength: 100, "stroke-dasharray": "0 100" }, R);
+  PX.d0 = S("circle", { cx: PX.p0[0], cy: PX.p0[1], r: 12, fill: "#fff", opacity: 0 }, R);
+  PX.d1 = S("circle", { cx: PX.p1[0], cy: PX.p1[1], r: 14, fill: "#3D8BFF", stroke: "#fff", "stroke-width": 3, opacity: 0 }, R);
+  PX.t0 = T(R, PX.p0[0] + 4, PX.p0[1] - 26, "370,000 (6월 장중)", "", { style: "font-size:26px;font-weight:800;fill:#fff", opacity: 0 });
+  PX.t1 = T(R, PX.p1[0] + 10, PX.p1[1] - 34, "271,500", "", { "text-anchor": "end", style: "font-size:40px;font-weight:900;fill:#5BA1FF", opacity: 0 });
+  PX.pct = T(R, 380, 120, "-27%", "", { "text-anchor": "middle", style: "font-size:64px;font-weight:900;fill:#3D8BFF", opacity: 0 });
+  PX.tag = S("g", { opacity: 0 }, R);
+  S("rect", { x: 300, y: 300, width: 360, height: 60, rx: 14, fill: "rgba(61,139,255,.15)", stroke: "#3D8BFF", "stroke-width": 2 }, PX.tag);
+  T(PX.tag, 480, 340, "2Q 실적 발표 후 -7%", "", { "text-anchor": "middle", style: "font-size:28px;font-weight:800;fill:#8DB8FF" });
+  const pk = $("#pxPeak");
+  PX.curve = S("path", { d: "M40 270 C 250 270, 330 40, 450 40 C 570 40, 650 270, 860 270", fill: "none", stroke: "#FFC94D", "stroke-width": 6, pathLength: 100, "stroke-dasharray": "0 100", "stroke-linecap": "round" }, pk);
+  PX.ball = S("circle", { r: 16, fill: "#FF4D5E", stroke: "#fff", "stroke-width": 4, opacity: 0 }, pk);
+  PX.peakT = T(pk, 450, 22, "PEAK?", "", { "text-anchor": "middle", style: "font-size:30px;font-weight:900;fill:#FFC94D;letter-spacing:.1em", opacity: 0 });
+};
+U.paradox = (t, s) => {
+  show($("#pxL"), P(t, s.c(0) + .1, .7), 40); show($("#pxR"), P(t, s.c(0) + .4, .7), 40);
+  PX.lb.forEach((b, i) => { const p = P(t, s.c(0) + .4 + i * .12, .8, E.back), h = Math.max(0, b.h * p); b.r.setAttribute("y", 340 - h); b.r.setAttribute("height", h); });
+  PX.lbArrow.setAttribute("opacity", P(t, s.c(0) + 1.2, .5));
+  const lp = P(t, s.c(1) + .4, 1.6, E.inOut);
+  PX.line.setAttribute("stroke-dasharray", `${lp * 100} 100`);
+  PX.d0.setAttribute("opacity", P(t, s.c(1) + .2, .3)); PX.t0.setAttribute("opacity", P(t, s.c(1) + .2, .4));
+  PX.d1.setAttribute("opacity", P(t, s.c(1) + 1.9, .3)); PX.t1.setAttribute("opacity", P(t, s.c(1) + 2.0, .4));
+  PX.pct.setAttribute("opacity", P(t, s.c(1) + 2.3, .5));
+  PX.tag.setAttribute("opacity", P(t, s.c(2) + .6, .5));
+  const q = P(t, s.c(3), .6, E.inOut);
+  const pq = $("#pxQ"); pq.style.opacity = q;
+  pq.querySelector(".q").style.transform = `scale(${lerp(.9, 1, P(t, s.c(3), .8, E.back))})`;
+  const cp = P(t, s.c(4) - .2, 1.6, E.inOut);
+  PX.curve.setAttribute("stroke-dasharray", `${cp * 100} 100`);
+  $("#pxPeak").style.opacity = P(t, s.c(4) - .3, .4);
+  if (cp > 0) {
+    const L = PX.curve.getTotalLength(), pt = PX.curve.getPointAtLength(L * Math.min(cp, .5) * 1.0);
+    PX.ball.setAttribute("cx", pt.x); PX.ball.setAttribute("cy", pt.y); PX.ball.setAttribute("opacity", 1);
+  } else PX.ball.setAttribute("opacity", 0);
+  PX.peakT.setAttribute("opacity", P(t, s.c(4) + .7, .4) * (0.75 + .25 * Math.sin(t * 6)));
+  fadeOnly($("#pxPeakS"), P(t, s.c(4) + .5, .5));
+};
+
+/* CHECKLIST */
+U.checklist = (t, s) => {
+  [1, 2, 3].forEach(k => {
+    const a = s.c(k), el = $("#ck" + k);
+    show(el, P(t, a - .1, .6), 0); el.style.transform = `translateX(${(1 - P(t, a - .1, .6)) * -80}px)`;
+    el.querySelector(".ckm").setAttribute("stroke-dasharray", `${P(t, a + .8, .5, E.inOut) * 100} 100`);
+    const on = t >= a && (k === 3 || t < s.c(k + 1));
+    el.style.borderColor = on ? "rgba(255,201,77,.55)" : "rgba(255,255,255,.10)";
+    el.querySelector(".bx").style.borderColor = t >= a + .8 ? "#FFC94D" : "rgba(255,255,255,.25)";
+  });
+};
+
+/* KOSPI */
+const KS = { pts: [["2025-12-30", 4214.17, "4,214", "25년 말"], ["2026-05-06", 7384.56, "7,385", "첫 7,000 돌파 · 5.6"], ["2026-06-18", 9063.84, "9,064", "첫 9,000 돌파 · 6.18"], ["2026-07-29", 5663.24, "5,663", "7.29"], ["2026-07-31", 6595.45, "6,595", "하루 +17.9% · 7.31"], ["2026-09-09", 7051.64, "7,052", "7,000 회복 · 9.9"], ["2026-10-06", 6941.39, "6,941", "10.6"]],
+  X0: 110, X1: 1560, Y0: 540, Y1: 30, vmin: 3500, vmax: 9800 };
+B.kospi = () => {
+  const svg = $("#ksSvg"), d0 = new Date("2025-12-30"), d1 = new Date("2026-10-10"), span = (d1 - d0);
+  const X = d => KS.X0 + (new Date(d) - d0) / span * (KS.X1 - KS.X0), Y = v => KS.Y0 - (v - KS.vmin) / (KS.vmax - KS.vmin) * (KS.Y0 - KS.Y1);
+  KS.X = X; KS.Y = Y;
+  const defs = S("defs", {}, svg);
+  const g = S("linearGradient", { id: "ka", x1: 0, y1: 0, x2: 0, y2: 1 }, defs); S("stop", { offset: 0, "stop-color": "rgba(255,77,94,.35)" }, g); S("stop", { offset: 1, "stop-color": "rgba(255,77,94,0)" }, g);
+  const cp = S("clipPath", { id: "kclip" }, defs); KS.clip = S("rect", { x: 0, y: 0, width: 0, height: 600 }, cp);
+  [4000, 5000, 6000, 7000, 8000, 9000].forEach(v => { S("line", { x1: KS.X0, x2: KS.X1, y1: Y(v), y2: Y(v), class: "axis", "stroke-dasharray": v === 7000 ? "" : "4 8", stroke: v === 7000 ? "rgba(255,201,77,.35)" : null }, svg); T(svg, KS.X0 - 18, Y(v) + 8, fmt(v), "lbl-s", { "text-anchor": "end" }); });
+  ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월"].forEach((m, i) => T(svg, X(`2026-${String(i + 1).padStart(2, "0")}-01`), 584, m, "lbl-s", { "text-anchor": "middle" }));
+  const pts = KS.pts.map(p => [X(p[0]), Y(p[1])]);
+  KS.xs = pts.map(p => p[0]);
+  const dpath = "M" + pts.map(p => p.join(" ")).join(" L");
+  const gg = S("g", { "clip-path": "url(#kclip)" }, svg);
+  S("path", { d: dpath + ` L${pts[pts.length - 1][0]} ${KS.Y0} L${pts[0][0]} ${KS.Y0} Z`, fill: "url(#ka)" }, gg);
+  S("path", { d: dpath, fill: "none", stroke: "#FF4D5E", "stroke-width": 6, "stroke-linejoin": "round", "stroke-linecap": "round" }, gg);
+  const off = [[0, -28, "start"], [-10, -26, "end"], [0, -30, "middle"], [-22, 48, "end"], [14, 46, "start"], [0, -30, "middle"], [-6, 54, "middle"]];
+  KS.dots = pts.map((p, i) => {
+    const gr = S("g", { opacity: 0 }, svg);
+    S("circle", { cx: p[0], cy: p[1], r: 11, fill: i === 6 ? "#FFC94D" : "#fff", stroke: "#060A14", "stroke-width": 3 }, gr);
+    const [dx, dy, an] = off[i];
+    T(gr, p[0] + dx, p[1] + dy, KS.pts[i][2], "", { "text-anchor": an, style: `font-size:${i === 6 ? 40 : 32}px;font-weight:900;fill:${i === 6 ? "#FFC94D" : "#fff"}` });
+    T(gr, p[0] + dx, p[1] + dy + (dy < 0 ? -36 : 30), KS.pts[i][3], "lbl-s", { "text-anchor": an });
+    return gr;
+  });
+  KS.drop = S("g", { opacity: 0 }, svg);
+  S("rect", { x: X("2026-07-01") + 40, y: Y(8000) - 30, width: 200, height: 64, rx: 14, fill: "rgba(61,139,255,.16)", stroke: "#3D8BFF", "stroke-width": 2 }, KS.drop);
+  T(KS.drop, X("2026-07-01") + 140, Y(8000) + 14, "7월 -22.2%", "", { "text-anchor": "middle", style: "font-size:32px;font-weight:900;fill:#7FB0FF" });
+  KS.cb = S("g", { opacity: 0 }, svg);
+  S("rect", { x: X("2026-07-29") - 560, y: Y(5663) + 10, width: 270, height: 60, rx: 14, fill: "rgba(255,77,94,.18)", stroke: "#FF4D5E", "stroke-width": 2 }, KS.cb);
+  T(KS.cb, X("2026-07-29") - 425, Y(5663) + 50, "서킷브레이커 ×2", "", { "text-anchor": "middle", style: "font-size:28px;font-weight:900;fill:#FF8A94" });
+  KS.pulse = S("circle", { cx: pts[6][0], cy: pts[6][1], r: 12, fill: "none", stroke: "#FFC94D", "stroke-width": 3, opacity: 0 }, svg);
+};
+U.kospi = (t, s) => {
+  $("#ksSvg").style.opacity = P(t, s.c(0) + .1, .6);
+  const xs = KS.xs;
+  // reveal x (piecewise)
+  let x = xs[0] + 2;
+  const seg = (a, from, to, d) => { const p = P(t, a, d, E.inOut); if (t >= a) x = lerp(from, to, p); };
+  seg(s.c(2), xs[0] + 2, xs[2] + 14, 2.2);
+  seg(s.c(3) + .1, xs[2] + 14, xs[3] + 14, 1.2);
+  seg(s.c(5), xs[3] + 14, xs[6] + 14, 2.4);
+  KS.clip.setAttribute("width", t >= s.c(1) ? x : 0);
+  const th = [s.c(1), s.c(2) + 1.0, s.c(2) + 2.0, s.c(3) + 1.2, s.c(5) + .3, s.c(5) + 1.6, s.c(5) + 2.4];
+  KS.dots.forEach((d, i) => d.setAttribute("opacity", P(t, th[i], .4)));
+  KS.drop.setAttribute("opacity", P(t, s.c(3) + .9, .5));
+  KS.cb.setAttribute("opacity", P(t, s.c(4), .3) * (t < s.c(4) + 1.5 ? (.6 + .4 * Math.abs(Math.sin((t - s.c(4)) * 7))) : 1));
+  const pp = ((t - s.c(5) - 2.6) % 1.4 + 1.4) % 1.4 / 1.4;
+  KS.pulse.setAttribute("r", 12 + pp * 34); KS.pulse.setAttribute("opacity", t > s.c(5) + 2.6 ? (1 - pp) : 0);
+};
+
+/* DONUT */
+const DN = {};
+B.donut = () => {
+  const svg = $("#dnSvg");
+  const ring = (cx, cy, r, w) => {
+    const g = S("g", {}, svg);
+    S("circle", { cx, cy, r, fill: "none", stroke: "rgba(255,255,255,.08)", "stroke-width": w }, g);
+    const a = S("circle", { cx, cy, r, fill: "none", stroke: "#FF4D5E", "stroke-width": w, pathLength: 100, "stroke-dasharray": "0 100", transform: `rotate(-90 ${cx} ${cy})`, "stroke-linecap": "butt" }, g);
+    const b = S("circle", { cx, cy, r, fill: "none", stroke: "#FF9AA3", "stroke-width": w, pathLength: 100, "stroke-dasharray": "0 100", transform: `rotate(-90 ${cx} ${cy})` }, g);
+    return { g, a, b };
+  };
+  DN.big = ring(1000, 270, 210, 74);
+  DN.bigT = T(DN.big.g, 1000, 292, "0%", "", { "text-anchor": "middle", style: "font-size:96px;font-weight:900;fill:#fff" });
+  T(DN.big.g, 1000, 350, "현재", "lbl", { "text-anchor": "middle" });
+  DN.small = ring(380, 270, 140, 52);
+  DN.smallT = T(DN.small.g, 380, 288, "21.9%", "", { "text-anchor": "middle", style: "font-size:60px;font-weight:900;fill:#C9CFDD" });
+  T(DN.small.g, 380, 330, "1년 전", "lbl", { "text-anchor": "middle" });
+  T(DN.small.g, 380, 470, "삼성 14.6% + 하이닉스 7.4%", "lbl-s", { "text-anchor": "middle" });
+  DN.arrow = S("g", { opacity: 0 }, svg);
+  S("path", { d: "M560 270 L720 270", stroke: "#FFC94D", "stroke-width": 6, "stroke-linecap": "round" }, DN.arrow);
+  S("polygon", { points: "740,270 712,252 712,288", fill: "#FFC94D" }, DN.arrow);
+  T(DN.arrow, 640, 240, "×2.5", "", { "text-anchor": "middle", style: "font-size:40px;font-weight:900;fill:#FFC94D" });
+  DN.leg = S("g", { opacity: 0 }, svg);
+  S("rect", { x: 1260, y: 420, width: 22, height: 22, rx: 5, fill: "#FF4D5E" }, DN.leg); T(DN.leg, 1294, 440, "삼성전자 + SK하이닉스", "lbl-s");
+  S("rect", { x: 1260, y: 460, width: 22, height: 22, rx: 5, fill: "rgba(255,255,255,.12)" }, DN.leg); T(DN.leg, 1294, 480, "나머지 전 종목", "lbl-s");
+};
+U.donut = (t, s) => {
+  const mv = P(t, s.c(2), .9, E.inOut);
+  DN.big.g.setAttribute("transform", `translate(${lerp(-200, 0, mv)} 0)`);
+  DN.big.g.style.opacity = P(t, s.c(0) + .2, .6);
+  const bp = P(t, s.c(1) + .3, 1.6, E.inOut);
+  DN.big.a.setAttribute("stroke-dasharray", `${54.4 * bp} 100`);
+  DN.bigT.textContent = fmt(54.4 * bp, 1) + "%";
+  DN.leg.setAttribute("opacity", P(t, s.c(1) + 1.2, .5));
+  DN.small.g.style.opacity = P(t, s.c(2) + .4, .6);
+  const sp = P(t, s.c(2) + .6, 1.0, E.inOut);
+  DN.small.a.setAttribute("stroke-dasharray", `${21.9 * sp} 100`);
+  DN.arrow.setAttribute("opacity", P(t, s.c(2) + 1.2, .5));
+  const st = P(t, s.c(3), .45, E.back);
+  const sEl = $("#dnStamp"); sEl.style.opacity = st; sEl.style.transform = `rotate(-8deg) scale(${lerp(1.8, 1, st)})`;
+  show($("#dnEq"), P(t, s.c(4), .6), 30);
+};
+
+/* MACRO */
+U.macro = (t, s) => {
+  show($("#mcH"), P(t, s.c(0), .6), 30);
+  [s.c(1), s.c(2), s.c(3), s.f(3, .5)].forEach((a, i) => show($("#mc" + (i + 1)), P(t, a + .1, .7), 60));
+};
+
+/* BAND */
+const BD = {};
+B.band = () => {
+  const svg = $("#bdSvg"), x = v => 120 + (v - 6000) / 2000 * 1400; BD.x = x;
+  S("rect", { x: x(6000), y: 150, width: x(8000) - x(6000), height: 40, rx: 20, fill: "rgba(255,255,255,.06)" }, svg);
+  BD.band = S("rect", { x: x(6400), y: 140, width: 0, height: 60, rx: 18, fill: "url(#bdg)" }, svg);
+  const defs = S("defs", {}, svg), g = S("linearGradient", { id: "bdg", x1: 0, x2: 1 }, defs);
+  S("stop", { offset: 0, "stop-color": "#3D8BFF" }, g); S("stop", { offset: .5, "stop-color": "#FFC94D" }, g); S("stop", { offset: 1, "stop-color": "#FF4D5E" }, g);
+  [6000, 6500, 7000, 7500, 8000].forEach(v => T(svg, x(v), 250, fmt(v), "lbl-s", { "text-anchor": "middle" }));
+  BD.lo = S("g", { opacity: 0 }, svg); T(BD.lo, x(6400), 110, "6,400", "", { "text-anchor": "middle", style: "font-size:46px;font-weight:900;fill:#5BA1FF" }); T(BD.lo, x(6400), 300, "하단", "lbl", { "text-anchor": "middle" });
+  BD.hi = S("g", { opacity: 0 }, svg); T(BD.hi, x(7600), 110, "7,600", "", { "text-anchor": "middle", style: "font-size:46px;font-weight:900;fill:#FF6B78" }); T(BD.hi, x(7600), 300, "상단", "lbl", { "text-anchor": "middle" });
+  BD.mk = S("g", { opacity: 0 }, svg);
+  S("line", { x1: 0, x2: 0, y1: 120, y2: 220, stroke: "#fff", "stroke-width": 4 }, BD.mk);
+  S("polygon", { points: "-16,96 16,96 0,120", fill: "#fff" }, BD.mk);
+  T(BD.mk, 0, 54, "현재 6,941", "", { "text-anchor": "middle", style: "font-size:34px;font-weight:900;fill:#fff" });
+  T(BD.mk, 0, 84, "10.6 종가", "lbl-s", { "text-anchor": "middle" });
+};
+U.band = (t, s) => {
+  $("#bdSvg").style.opacity = P(t, s.c(0), .5);
+  const bp = P(t, s.c(0) + .3, 1.2, E.inOut);
+  BD.band.setAttribute("width", (BD.x(7600) - BD.x(6400)) * bp);
+  BD.lo.setAttribute("opacity", P(t, s.c(0) + .4, .5)); BD.hi.setAttribute("opacity", P(t, s.c(0) + 1.3, .5));
+  const mp = P(t, s.c(0) + 1.8, 1.0, E.back);
+  BD.mk.setAttribute("opacity", P(t, s.c(0) + 1.8, .3)); BD.mk.setAttribute("transform", `translate(${lerp(BD.x(6000), BD.x(6941.39), mp)} 0)`);
+  show($("#bdF"), P(t, s.c(1), .7), 40);
+  const q = P(t, s.c(2), .5, E.back);
+  const eps = $("#bdEps"); eps.style.borderColor = q > 0 ? `rgba(255,201,77,${.6 * q})` : ""; eps.style.transform = `scale(${1 + .06 * q})`;
+  $("#bdQ").style.opacity = q;
+};
+
+/* CALENDAR */
+B.calendar = () => {
+  const g = $("#calG");
+  for (let i = 0; i < 4; i++) { const c = document.createElement("div"); c.className = "c e"; g.appendChild(c); }
+  for (let d = 1; d <= 31; d++) { const c = document.createElement("div"); c.className = "c"; c.id = "cd" + d; c.innerHTML = `${d}<span class="lb"></span>`; g.appendChild(c); }
+  $("#cd7 .lb").textContent = "오늘"; $("#cd7").style.outline = "2px dashed rgba(255,255,255,.35)";
+};
+U.calendar = (t, s) => {
+  show($("#calW"), P(t, s.c(0), .7), 40);
+  const mark = (d, col, label, a) => {
+    const p = P(t, a, .5, E.back), el = $("#cd" + d);
+    el.style.background = p > 0 ? col.replace("A", (.25 * p).toFixed(3)) : "rgba(255,255,255,.04)";
+    el.style.boxShadow = p > 0 ? `inset 0 0 0 2px ${col.replace("A", (.9 * p).toFixed(3))}` : "none";
+    el.style.color = p > .5 ? "#fff" : "";
+    el.style.transform = `scale(${1 + .08 * Math.sin(Math.PI * clamp((t - a) / .5))})`;
+    const lb = el.querySelector(".lb"); if (label) { lb.textContent = label; lb.style.color = col.replace("A", "1"); lb.style.opacity = p; }
+  };
+  mark(8, "rgba(255,201,77,A)", "삼성 실적", s.f(1, .05));
+  mark(22, "rgba(56,189,248,A)", "금통위", s.f(1, .55));
+  mark(27, "rgba(255,77,94,A)", "FOMC", s.f(2, .3));
+  mark(28, "rgba(255,77,94,A)", "FOMC", s.f(2, .4));
+  [s.f(1, .05), s.f(1, .55), s.f(2, .3)].forEach((a, i) => show($("#ev" + (i + 1)), P(t, a, .6), 0) || ($("#ev" + (i + 1)).style.transform = `translateX(${(1 - P(t, a, .6)) * 80}px)`));
+};
+
+/* SCENARIO */
+U.scenario = (t, s) => {
+  const act = t >= s.c(3) ? 3 : t >= s.c(2) ? 2 : t >= s.c(1) ? 1 : 0;
+  [1, 2, 3].forEach(k => {
+    const el = $("#sc" + k), p = P(t, s.c(0) + .2 + (k - 1) * .25, .7);
+    const on = act === k, dim = act !== 0 && !on;
+    const hp = on ? P(t, s.c(k), .4) : 0;
+    el.style.opacity = p * (dim ? .42 : 1);
+    el.style.transform = `translateY(${(1 - p) * 60 - hp * 18}px) scale(${1 + hp * .035})`;
+    el.style.boxShadow = on ? `0 40px 90px rgba(0,0,0,.45), 0 0 0 2px ${["", "rgba(255,77,94,.6)", "rgba(255,201,77,.6)", "rgba(61,139,255,.6)"][k]}` : "";
+  });
+  fadeOnly($("#scNote"), P(t, s.c(0) + 1, .6));
+};
+
+/* OUTRO */
+U.outro = (t, s) => {
+  const out = P(t, s.c(4) - .1, .5, E.inOut);
+  show($("#ouH"), P(t, s.c(0), .6) * (1 - out), 20);
+  [1, 2, 3].forEach(k => show($("#ou" + k), P(t, s.c(k) + .05, .7) * (1 - out), 50));
+  const sp = P(t, s.c(4) + .2, .6, E.back);
+  show($("#ouSub"), sp, 40);
+  const cur = $("#ouCursor"), cp = P(t, s.c(4) + .6, 1.0, E.inOut);
+  cur.style.opacity = P(t, s.c(4) + .5, .3);
+  const tx = lerp(1500, 1110, cp), ty = lerp(900, 380, cp);
+  const click = t > s.c(4) + 1.7 ? 1 : 0, cl = P(t, s.c(4) + 1.65, .15) * (1 - P(t, s.c(4) + 1.85, .2));
+  cur.style.left = tx + "px"; cur.style.top = ty + "px"; cur.style.transform = `scale(${1 - cl * .2})`;
+  const sb = $("#ouSubB");
+  sb.style.background = click ? "#3A3F4B" : "#E62E3D";
+  sb.textContent = click ? "구독중 ✓" : "구독";
+  sb.style.transform = `scale(${1 - cl * .06})`;
+  const lk = $("#ouLike"); lk.style.background = t > s.c(4) + 2.4 ? "rgba(59,130,246,.25)" : "rgba(255,255,255,.08)";
+  const cp2 = P(t, s.c(4) + 1.9, .5, E.inOut);
+  if (t > s.c(4) + 1.9) { cur.style.left = lerp(1110, 760, cp2) + "px"; }
+};
+
+/* END */
+U.end = (t, s) => {
+  const l = t - s.start;
+  show($("#enLogo"), P(l, .2, .7), 30); show($("#enD"), P(l, .6, .7), 30); show($("#enS"), P(l, 1.0, .7), 30);
+};
+
+/* ═════════════ global render ═════════════ */
+Object.keys(B).forEach(k => B[k]());
+const subTx = $("#subTx"), subBox = $("#subBox"), subBar = $("#subBar");
+let lastSub = null;
+const md = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\*\*(.+?)\*\*/g, "<em>$1</em>");
+// progress ticks
+(() => { const pr = $("#progress"); let last = ""; TL.scenes.forEach(s => { if (s.chapter && s.chapter !== last) { const d = document.createElement("div"); d.className = "tick"; d.style.left = (s.start / TL.duration * 100) + "%"; pr.appendChild(d); last = s.chapter; } }); })();
+
+function renderAt(t) {
+  // background drift
+  $("#grid").style.transform = `translate(${(t * 6) % 80}px, ${(t * 3) % 80}px)`;
+  $("#orb1").style.left = (200 + Math.sin(t * .13) * 260) + "px"; $("#orb1").style.top = (-120 + Math.cos(t * .11) * 120) + "px";
+  $("#orb2").style.left = (1300 + Math.cos(t * .09) * 240) + "px"; $("#orb2").style.top = (620 + Math.sin(t * .12) * 140) + "px";
+
+  let cur = TL.scenes[0];
+  TL.scenes.forEach((s, i) => {
+    const el = document.getElementById("s-" + s.id);
+    const first = i === 0, last = i === TL.scenes.length - 1;
+    const pin = first ? P(t, 0, .5) : P(t, s.start - .2, .5, E.inOut);
+    const pout = last ? 0 : P(t, s.end - .25, .45, E.inOut);
+    const vis = pin * (1 - pout);
+    if (t >= s.start && t < s.end) cur = s;
+    if (vis <= 0.001) { el.style.display = "none"; return; }
+    el.style.display = "block";
+    el.style.opacity = vis;
+    el.style.transform = `translateY(${(1 - pin) * 26}px) scale(${1 - pout * .025})`;
+    if (U[s.id]) U[s.id](t, s);
+  });
+
+  // HUD
+  const ch = cur.chapter;
+  const chEl = $("#chapter");
+  $("#chapterTx").textContent = ch || "";
+  const chIn = ch ? P(t, (() => { let k = TL.scenes.indexOf(cur); while (k > 0 && TL.scenes[k - 1].chapter === ch) k--; return TL.scenes[k].start; })(), .6) : 0;
+  chEl.style.opacity = chIn; chEl.style.transform = `translateX(${(1 - chIn) * -20}px)`;
+  const src = $("#source"); src.textContent = cur.source || ""; src.style.opacity = cur.source ? P(t, cur.start + .3, .6) : 0;
+  const hudHide = (cur.id === "title" || cur.id === "end") ? 1 - 0 : 0;
+  ["#logo", "#stamp"].forEach(q => $(q).style.opacity = 1 - hudHide * .0);
+  $("#progFill").style.width = (t / TL.duration * 100) + "%";
+
+  // subtitles
+  let line = null;
+  for (const s of TL.scenes) for (let i = 0; i < s.lines.length; i++) {
+    const l = s.lines[i], nxt = s.lines[i + 1];
+    const hold = nxt ? nxt.start : l.end + .35;
+    if (t >= l.start - .06 && t < hold) line = l;
+  }
+  if (line) {
+    if (lastSub !== line) { subTx.innerHTML = md(line.sub); lastSub = line; }
+    const p = P(t, line.start - .06, .22);
+    subBox.style.opacity = p; subBox.style.transform = `translateY(${(1 - p) * 14}px)`;
+    subBar.style.width = (clamp((t - line.start) / (line.end - line.start)) * 100) + "%";
+    $("#subs").style.opacity = 1;
+  } else { $("#subs").style.opacity = 0; lastSub = null; }
+}
+window.renderAt = renderAt;
+window.ready = document.fonts.ready.then(() => { const q = new URLSearchParams(location.search).get("t"); renderAt(q ? parseFloat(q) : 0); return true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""timeline.json → 유튜브 업로드용 메타데이터(제목·설명·챕터·태그) 생성."""
+import json, os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+tl = json.load(open(os.path.join(HERE, "build", "timeline.json")))
+
+
+def ts(t):
+    t = int(t); return f"{t // 60}:{t % 60:02d}"
+
+
+chapters, last = [("0:00", "오프닝 · 분기 영업이익 100조?")], None
+names = {"CHAPTER 1": "숫자로 보는 3분기", "CHAPTER 2": "이 돈은 누가 벌었나", "CHAPTER 3": "4분기, 그리고 주가",
+         "CHAPTER 4": "코스피는 어디로", "CHAPTER 5": "시나리오 & 결론"}
+for s in tl["scenes"]:
+    ch = s["chapter"].split(" · ")[0] if s["chapter"] else ""
+    if ch and ch != last:
+        chapters.append((ts(s["start"]), f"{ch.title()} · {names[ch]}"))
+        last = ch
+outro = next(s for s in tl["scenes"] if s["id"] == "outro")
+chapters.append((ts(outro["start"]), "정리"))
+
+md = f"""# 유튜브 업로드 메타데이터
+
+## 제목 (후보)
+1. 삼성전자 분기 영업이익 100조 시대, 그런데 주가는 왜? | 3분기 실적 전망 & 코스피 전망
+2. 하루 1조씩 버는 회사, 삼성전자 3분기 실적 미리보기 (+코스피 10월 전망)
+3. 반도체가 98%를 벌었다 — 삼성전자 3Q26 프리뷰와 코스피 시나리오
+
+## 설명
+삼성전자가 10월 8일 3분기 잠정실적을 발표합니다.
+시장 컨센서스는 영업이익 약 107조 원, 매출 200조 원 — 국내 기업 최초의 '분기 100조 클럽'이 유력합니다.
+그런데 주가는 6월 고점 대비 -27%. 실적은 역대급인데 주가는 왜 이럴까요?
+삼성전자 3분기 실적 전망과, 반도체가 시가총액의 절반을 차지한 코스피의 10월 전망을 정리했습니다.
+
+⏱ 타임라인
+""" + "\n".join(f"{a} {b}" for a, b in chapters) + """
+
+📌 데이터 기준: 2026.10.07 (삼성전자 3Q26 잠정실적 발표 전)
+📊 자료: 삼성전자 IR, FnGuide, LSEG, 한국거래소, TrendForce, 미 연준, 한국은행, 한국투자증권, 각 증권사 리포트 및 언론 보도
+
+⚠️ 본 영상은 정보 제공 목적이며 특정 종목에 대한 투자 권유가 아닙니다. 투자 판단과 그 결과에 대한 책임은 투자자 본인에게 있습니다.
+
+## 태그
+삼성전자, 삼성전자 실적, 삼성전자 3분기, 잠정실적, 영업이익 100조, HBM4, 반도체, D램, 메모리 슈퍼사이클, 코스피, 코스피 전망, 10월 증시, 피크아웃, SK하이닉스, FOMC, 경제, 주식, 인포그래픽
+
+## 고정 댓글 (예시)
+여러분은 이번 3분기, 컨센서스 107조를 넘을 거라고 보시나요? 댓글로 의견 남겨주세요 👇
+"""
+open(os.path.join(HERE, "output", "youtube_meta.md"), "w").write(md)
+print(md)
