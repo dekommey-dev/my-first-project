@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlphaFolio · AI 자동 투자 대시보드</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #fff; --text: #1b2437; --muted: #6b7690; --line: #e5e9f2;
+    --primary: #4f46e5; --primary-soft: #eef0ff; --up: #e5484d; --down: #2f6fed;
+    --c1: #4f46e5; --c2: #06b6d4; --c3: #f59e0b; --c4: #10b981; --c5: #94a3b8;
+    --radius: 16px; --shadow: 0 1px 2px rgba(20,30,60,.05), 0 6px 20px rgba(20,30,60,.05);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: -apple-system, "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+  aside { background: #131a2e; color: #c9d1e6; padding: 24px 16px; position: sticky; top: 0; height: 100vh; }
+  .logo { font-weight: 800; font-size: 20px; color: #fff; padding: 0 8px 24px; display: flex; align-items: center; gap: 8px; }
+  .logo i { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #06b6d4); display: inline-block; }
+  nav a { display: block; padding: 10px 12px; border-radius: 10px; color: inherit; text-decoration: none; font-size: 14px; margin-bottom: 4px; }
+  nav a.active, nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+  main { padding: 28px; max-width: 1200px; width: 100%; }
+  header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  header.top h1 { font-size: 22px; }
+  header.top p { color: var(--muted); font-size: 14px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f8f0; color: #0f8a5f; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #10b981; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; min-width: 0; }
+  .card h2 { font-size: 15px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .span-12 { grid-column: span 12; } .span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; }
+  .span-4 { grid-column: span 4; } .span-8 { grid-column: span 8; } .span-3 { grid-column: span 3; } .span-6 { grid-column: span 6; }
+  /* 투자 성향 카드 */
+  .profile { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; align-items: center; }
+  .profile .type { font-size: 26px; font-weight: 800; color: var(--primary); }
+  .profile .desc { color: var(--muted); font-size: 14px; margin: 6px 0 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
+  .gauge-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .gauge { height: 10px; border-radius: 99px; background: linear-gradient(90deg, #10b981, #f59e0b, #e5484d); position: relative; }
+  .gauge b { position: absolute; top: 50%; width: 18px; height: 18px; background: #fff; border: 3px solid var(--text); border-radius: 50%; transform: translate(-50%, -50%); }
+  .score { font-size: 13px; margin-bottom: 10px; } .score strong { font-size: 24px; }
+  .survey { margin-top: 16px; display: grid; gap: 8px; font-size: 13px; }
+  .survey div { display: flex; align-items: center; gap: 10px; }
+  .survey span { width: 76px; color: var(--muted); flex: none; }
+  .bar { flex: 1; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--primary); border-radius: 99px; }
+  /* KPI */
+  .kpi .label { color: var(--muted); font-size: 13px; }
+  .kpi .value { font-size: 24px; font-weight: 800; margin: 4px 0; }
+  .kpi .sub { font-size: 13px; }
+  .up { color: var(--up); } .down { color: var(--down); }
+  /* 도넛 */
+  .donut-wrap { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .donut { width: 200px; height: 200px; flex: none; }
+  .donut circle.seg { cursor: pointer; transition: stroke-width .15s, opacity .15s; }
+  .donut circle.seg:hover, .donut circle.seg.on { stroke-width: 34; }
+  .donut.dim circle.seg:not(.on) { opacity: .35; }
+  .donut text { text-anchor: middle; }
+  .legend { list-style: none; padding: 0; flex: 1; min-width: 190px; display: grid; gap: 4px; }
+  .legend li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+  .legend li:hover, .legend li.on { background: var(--bg); }
+  .legend .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .legend .name { flex: 1; } .legend .pct { font-weight: 700; } .legend .amt { color: var(--muted); font-size: 12px; width: 70px; text-align: right; }
+  /* 라인 */
+  .tabs { display: inline-flex; background: var(--bg); border-radius: 10px; padding: 3px; }
+  .tabs button { border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--muted); padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+  .tabs button.on { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .chart-box { position: relative; }
+  #line { width: 100%; height: 280px; display: block; touch-action: none; }
+  .tip { position: absolute; pointer-events: none; background: #131a2e; color: #fff; font-size: 12px; padding: 8px 10px; border-radius: 8px; transform: translate(-50%, -110%); white-space: nowrap; display: none; }
+  .chart-legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .chart-legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  /* 타임라인 */
+  .timeline { list-style: none; padding: 0; position: relative; }
+  .timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+  .timeline li { position: relative; padding: 0 0 20px 32px; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 4px solid var(--primary); }
+  .timeline .head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .timeline .head { width: 100%; background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .timeline .head:hover .title { color: var(--primary); }
+  .chev { display: inline-block; width: 7px; height: 7px; border: solid var(--muted); border-width: 0 2px 2px 0; transform: rotate(45deg); margin: 0 4px 3px 10px; transition: transform .2s; }
+  .timeline li.open .chev { transform: rotate(-135deg); margin-bottom: -2px; }
+  .detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+  .timeline li.open .detail { grid-template-rows: 1fr; }
+  .detail-in { overflow: hidden; overflow-x: auto; }
+  .detail table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+  .detail th { color: var(--muted); font-weight: 600; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .detail td { padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .detail th:nth-child(n+3), .detail td:nth-child(n+3) { text-align: right; }
+  .detail-in { min-width: 0; }
+  .trade-sum { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .timeline .date { font-size: 12px; color: var(--muted); }
+  .timeline .title { font-weight: 700; font-size: 14px; }
+  .timeline .reason { font-size: 13px; color: var(--muted); margin: 2px 0 8px; }
+  .chg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chg span { font-size: 12px; background: var(--bg); padding: 3px 9px; border-radius: 8px; }
+  .chg .plus { color: var(--up); } .chg .minus { color: var(--down); }
+  /* 설문 */
+  .sv-wrap { max-width: 760px; margin: 0 auto; }
+  .sv-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .sv-cat { background: var(--primary-soft); color: var(--primary); font-weight: 600; font-size: 12px; padding: 3px 10px; border-radius: 99px; }
+  .sv-progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 26px; }
+  .sv-progress i { display: block; height: 100%; background: var(--primary); border-radius: 99px; transition: width .25s; }
+  .sv-q { font-size: 19px; font-weight: 700; line-height: 1.45; margin-bottom: 4px; }
+  .sv-hint { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .sv-opts { display: grid; gap: 10px; border: 0; padding: 0; margin: 0; }
+  .sv-opt { position: relative; display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; cursor: pointer; font-size: 14px; transition: border-color .15s, background .15s; }
+  .sv-opt:hover { border-color: #b9bdf5; }
+  .sv-opt input { position: absolute; opacity: 0; }
+  .sv-opt::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #c3cada; background: #fff; box-shadow: inset 0 0 0 3px #fff; }
+  .sv-opt:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .sv-opt:has(input:checked)::before { background: var(--primary); border-color: var(--primary); }
+  .sv-opt:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .sv-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 24px; }
+  .btn { font: inherit; font-size: 14px; font-weight: 700; border: 0; border-radius: 10px; padding: 11px 22px; cursor: pointer; background: var(--primary); color: #fff; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.ghost { background: var(--bg); color: var(--text); }
+  .link-btn { font: inherit; font-size: 12px; font-weight: 600; color: var(--primary); background: var(--primary-soft); border: 0; border-radius: 8px; padding: 5px 10px; cursor: pointer; text-decoration: none; }
+  .sv-result { text-align: center; }
+  .sv-result .type { font-size: 30px; font-weight: 800; color: var(--primary); margin: 6px 0; }
+  .sv-result .desc { color: var(--muted); font-size: 14px; max-width: 520px; margin: 0 auto 20px; }
+  .sv-result .gauge { max-width: 420px; margin: 8px auto 0; }
+  .sv-result .gauge-label { max-width: 420px; margin: 6px auto 0; }
+  .alloc { text-align: left; max-width: 420px; margin: 24px auto 0; display: grid; gap: 8px; font-size: 13px; }
+  .alloc h3 { font-size: 14px; }
+  .alloc div { display: flex; align-items: center; gap: 10px; }
+  .alloc span { width: 76px; color: var(--muted); flex: none; } .alloc b { width: 36px; text-align: right; }
+  .alloc .bar i { background: var(--c2); }
+  .sv-actions { display: flex; justify-content: center; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .disclaimer { color: var(--muted); font-size: 12px; margin-top: 22px; text-align: center; }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; padding: 12px 16px; display: flex; align-items: center; gap: 12px; overflow-x: auto; }
+    .logo { padding: 0; } nav { display: flex; gap: 4px; } nav a { margin: 0; white-space: nowrap; }
+    .span-7, .span-5, .span-8, .span-4, .span-6 { grid-column: span 12; }
+    .span-3 { grid-column: span 6; }
+  }
+  @media (max-width: 560px) {
+    main { padding: 16px; } .card { padding: 18px; }
+    .profile { grid-template-columns: 1fr; gap: 16px; }
+    .card h2 { flex-wrap: wrap; }
+    .tabs button { white-space: nowrap; padding: 5px 10px; }
+    .sv-q { font-size: 17px; }
+    .kpi { padding: 14px; } .kpi .value { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="logo"><i></i>AlphaFolio</div>
+    <nav>
+      <a class="active" href="#dashboard" data-view="dashboard">대시보드</a>
+      <a href="#">포트폴리오</a>
+      <a href="#">자동 투자</a>
+      <a href="#survey" data-view="survey">투자 성향</a>
+      <a href="#">설정</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div>
+        <h1>김민준 님의 포트폴리오</h1>
+        <p id="today"></p>
+      </div>
+      <span class="badge">AI 자동 운용 중</span>
+    </header>
+
+    <div id="view-dash">
+    <div class="grid">
+      <!-- 투자 성향 요약 -->
+      <section class="card span-12">
+        <h2>투자 성향 분석 결과 <span><small id="pMeta" style="color:var(--muted);font-weight:400;margin-right:8px"></small><a class="link-btn" href="#survey">다시 검사하기</a></span></h2>
+        <div class="profile">
+          <div>
+            <div class="type" id="pType"></div>
+            <p class="desc" id="pDesc"></p>
+            <div class="tags" id="pTags"></div>
+          </div>
+          <div>
+            <div class="score">위험 감내 점수 <strong id="pScore"></strong> / 100</div>
+            <div class="gauge"><b id="pGauge"></b></div>
+            <div class="gauge-label"><span>안정형</span><span>중립형</span><span>공격형</span></div>
+            <div class="survey" id="pBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI -->
+      <section class="card kpi span-3"><div class="label">총 평가금액</div><div class="value">₩128,450,000</div><div class="sub up">▲ ₩1,240,000 (오늘 +0.97%)</div></section>
+      <section class="card kpi span-3"><div class="label">누적 수익률</div><div class="value up">+18.4%</div><div class="sub">투자 원금 ₩108,500,000</div></section>
+      <section class="card kpi span-3"><div class="label">연환산 변동성</div><div class="value">11.2%</div><div class="sub" style="color:var(--muted)">목표 범위 10~14% 이내</div></section>
+      <section class="card kpi span-3"><div class="label">다음 리밸런싱</div><div class="value">D-12</div><div class="sub" style="color:var(--muted)">2026.10.28 · 분기 정기</div></section>
+
+      <!-- 도넛 -->
+      <section class="card span-5">
+        <h2>자산군별 투자 비중</h2>
+        <div class="donut-wrap">
+          <svg class="donut" id="donut" viewBox="0 0 200 200" role="img" aria-label="자산군별 투자 비중 도넛 차트"></svg>
+          <ul class="legend" id="legend"></ul>
+        </div>
+      </section>
+
+      <!-- 라인 -->
+      <section class="card span-7">
+        <h2>누적 수익률 추이
+          <div class="tabs" id="tabs"><button data-r="30">1개월</button><button data-r="90">3개월</button><button data-r="180">6개월</button><button data-r="365" class="on">1년</button></div>
+        </h2>
+        <div class="chart-box">
+          <svg id="line" role="img" aria-label="누적 수익률 추이 그래프"></svg>
+          <div class="tip" id="tip"></div>
+        </div>
+        <div class="chart-legend"><span><i style="background:var(--primary)"></i>내 포트폴리오</span><span><i style="background:var(--c5)"></i>벤치마크 (60/40)</span></div>
+      </section>
+
+      <!-- 타임라인 -->
+      <section class="card span-12">
+        <h2>최근 리밸런싱 내역</h2>
+        <ul class="timeline" id="timeline"></ul>
+      </section>
+    </div>
+    </div>
+
+    <div id="view-survey" hidden>
+      <section class="card sv-wrap" id="svCard" aria-live="polite"></section>
+    </div>
+    <p class="disclaimer">본 화면은 MVP 목업이며 표시된 수치는 예시 데이터입니다. 투자 원금 손실이 발생할 수 있습니다.</p>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('ko-KR');
+$('#today').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric', weekday:'long'}) + ' 기준';
+
+/* ---------- 도넛 차트 ---------- */
+const TOTAL = 128450000;
+const assets = [
+  {name:'해외 주식', pct:40, color:'var(--c1)'},
+  {name:'국내 주식', pct:15, color:'var(--c2)'},
+  {name:'채권',     pct:25, color:'var(--c4)'},
+  {name:'금·원자재', pct:10, color:'var(--c3)'},
+  {name:'현금성',   pct:10, color:'var(--c5)'},
+];
+(function donut() {
+  const svg = $('#donut'), r = 70, C = 2 * Math.PI * r, NS = 'http://www.w3.org/2000/svg';
+  let offset = 0;
+  const mk = (tag, attrs, txt) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt) e.textContent = txt; return e; };
+  const center = mk('text', {x:100, y:96, 'font-size':12, fill:'#6b7690'}, '총 자산');
+  const centerVal = mk('text', {x:100, y:118, 'font-size':20, 'font-weight':800, fill:'#1b2437'}, '₩1.28억');
+  const segs = assets.map((a, i) => {
+    const len = C * a.pct / 100;
+    const c = mk('circle', {class:'seg', cx:100, cy:100, r, fill:'none', stroke:a.color, 'stroke-width':28,
+      'stroke-dasharray':`${len - 1.5} ${C - len + 1.5}`, 'stroke-dashoffset':-offset, transform:'rotate(-90 100 100)'});
+    offset += len;
+    svg.appendChild(c);
+    return c;
+  });
+  svg.append(center, centerVal);
+  const legend = $('#legend');
+  const lis = assets.map((a, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot" style="background:${a.color}"></span><span class="name">${a.name}</span><span class="pct">${a.pct}%</span><span class="amt">${(TOTAL * a.pct / 1e8).toFixed(2)}억</span>`;
+    legend.appendChild(li);
+    return li;
+  });
+  const set = i => {
+    segs.forEach((s, j) => s.classList.toggle('on', i === j));
+    lis.forEach((l, j) => l.classList.toggle('on', i === j));
+    svg.classList.toggle('dim', i >= 0);
+    centerVal.textContent = i >= 0 ? assets[i].pct + '%' : '₩1.28억';
+    center.textContent = i >= 0 ? assets[i].name : '총 자산';
+  };
+  [...segs, ...lis].forEach((el, k) => {
+    const i = k % assets.length;
+    el.addEventListener('mouseenter', () => set(i));
+    el.addEventListener('mouseleave', () => set(-1));
+    el.addEventListener('click', () => set(i));
+  });
+})();
+
+/* ---------- 라인 차트 ---------- */
+// 재현 가능한 의사난수로 1년치 일별 누적 수익률 생성
+function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+const DAYS = 365, END = new Date();
+const mkSeries = (seed, drift, vol, target) => {
+  const r = rng(seed), out = []; let v = 0;
+  for (let i = 0; i < DAYS; i++) { v += drift + (r() - 0.5) * vol; out.push(v); }
+  const k = target / out[DAYS - 1]; // 마지막 값을 목표 수익률에 맞춤
+  return out.map(x => x * k);
+};
+const mine = mkSeries(7, 0.05, 0.9, 18.4), bench = mkSeries(21, 0.03, 0.8, 11.2);
+const dateAt = i => { const d = new Date(END); d.setDate(d.getDate() - (DAYS - 1 - i)); return d; };
+
+const svg = $('#line'), tip = $('#tip');
+let range = 365;
+function drawLine() {
+  if (!svg.clientWidth) return;
+  const W = svg.clientWidth, H = svg.clientHeight, pad = {l:44, r:12, t:12, b:26};
+  const from = DAYS - range, a = mine.slice(from), b = bench.slice(from);
+  // 기간 시작점을 0%로 재기준
+  const A = a.map(x => x - a[0]), B = b.map(x => x - b[0]);
+  const all = A.concat(B), lo = Math.min(0, ...all), hi = Math.max(...all);
+  const step = Math.max(1, Math.ceil((hi - lo) / 5)), yMin = Math.floor(lo / step) * step, yMax = Math.ceil(hi / step) * step;
+  const x = i => pad.l + i / (A.length - 1) * (W - pad.l - pad.r);
+  const y = v => pad.t + (1 - (v - yMin) / (yMax - yMin)) * (H - pad.t - pad.b);
+  const path = s => s.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
+  let g = '';
+  for (let v = yMin; v <= yMax; v += step)
+    g += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="#e5e9f2"/><text x="${pad.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="#6b7690">${v}%</text>`;
+  for (let k = 0; k < 5; k++) {
+    const i = Math.round(k / 4 * (A.length - 1)), d = dateAt(from + i);
+    g += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === 4 ? 'end' : 'middle'}" font-size="11" fill="#6b7690">${d.getMonth() + 1}/${d.getDate()}</text>`;
+  }
+  svg.innerHTML = `<defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f46e5" stop-opacity=".25"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></linearGradient></defs>${g}
+    <path d="${path(A)}L${x(A.length - 1)} ${y(yMin)}L${x(0)} ${y(yMin)}Z" fill="url(#gr)"/>
+    <path d="${path(B)}" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3"/>
+    <path d="${path(A)}" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round"/>
+    <line id="vl" y1="${pad.t}" y2="${H - pad.b}" stroke="#94a3b8" style="display:none"/><circle id="vc" r="5" fill="#4f46e5" stroke="#fff" stroke-width="2" style="display:none"/>`;
+  const vl = svg.querySelector('#vl'), vc = svg.querySelector('#vc');
+  const move = e => {
+    const rect = svg.getBoundingClientRect(), px = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const i = Math.max(0, Math.min(A.length - 1, Math.round((px - pad.l) / (W - pad.l - pad.r) * (A.length - 1))));
+    vl.setAttribute('x1', x(i)); vl.setAttribute('x2', x(i)); vc.setAttribute('cx', x(i)); vc.setAttribute('cy', y(A[i]));
+    vl.style.display = vc.style.display = '';
+    const d = dateAt(from + i), s = n => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+    tip.innerHTML = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}<br>내 포트폴리오 <b>${s(A[i])}</b><br>벤치마크 ${s(B[i])}`;
+    tip.style.left = Math.min(Math.max(x(i), 70), W - 70) + 'px'; tip.style.top = y(A[i]) + 'px'; tip.style.display = 'block';
+  };
+  const leave = () => { vl.style.display = vc.style.display = 'none'; tip.style.display = 'none'; };
+  svg.onmousemove = move; svg.ontouchmove = move; svg.ontouchstart = move; svg.onmouseleave = leave; svg.ontouchend = leave;
+}
+$('#tabs').addEventListener('click', e => {
+  if (!e.target.dataset.r) return;
+  range = +e.target.dataset.r;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b === e.target));
+  drawLine();
+});
+window.addEventListener('resize', drawLine);
+drawLine();
+
+/* ---------- 리밸런싱 타임라인 ---------- */
+const events = [
+  {date:'2026.09.30', title:'분기 정기 리밸런싱', reason:'해외 주식 비중이 목표(38%)를 2%p 초과해 차익 실현 후 채권에 재배분했습니다.', chg:[['해외 주식', -2], ['채권', +2]],
+   trades:[['매도','TIGER 미국S&P500',120,21450],['매도','TIGER 나스닥100',45,131200],['매수','KODEX 국고채10년',310,10820],['매수','TIGER 미국채10년선물',95,12900]]},
+  {date:'2026.08.14', title:'변동성 확대 대응', reason:'VIX 상승으로 위험 예산을 초과해 현금성 자산을 일시 확대했습니다.', chg:[['국내 주식', -3], ['해외 주식', -2], ['현금성', +5]],
+   trades:[['매도','KODEX 200',140,36800],['매도','TIGER 미국S&P500',90,20980],['매수','KODEX CD금리액티브',420,1040]]},
+  {date:'2026.06.30', title:'분기 정기 리밸런싱', reason:'금 가격 조정 구간에서 저평가 판단에 따라 비중을 확대했습니다.', chg:[['금·원자재', +2], ['현금성', -2]],
+   trades:[['매도','KODEX CD금리액티브',2500,1038],['매수','ACE KRX금현물',180,14250]]},
+  {date:'2026.05.09', title:'투자 성향 재설정 반영', reason:'설문 재분석 결과 위험 감내도가 상승해 성장 자산 비중을 높였습니다.', chg:[['해외 주식', +4], ['채권', -4]],
+   trades:[['매도','KODEX 국고채10년',480,10760],['매수','TIGER 미국S&P500',140,20610],['매수','TIGER 나스닥100',20,127800]]},
+];
+const won = n => '₩' + fmt(Math.round(n));
+$('#timeline').innerHTML = events.map((e, i) => {
+  const sum = side => e.trades.filter(t => t[0] === side).reduce((a, t) => a + t[2] * t[3], 0);
+  return `<li>
+  <button class="head" aria-expanded="false" aria-controls="tl${i}"><span class="title">${e.title}</span><span class="date">${e.date}<i class="chev"></i></span></button>
+  <p class="reason">${e.reason}</p>
+  <div class="chg">${e.chg.map(([n, v]) => `<span class="${v > 0 ? 'plus' : 'minus'}">${n} ${v > 0 ? '+' : ''}${v}%p</span>`).join('')}</div>
+  <div class="detail" id="tl${i}"><div class="detail-in">
+    <table><thead><tr><th>구분</th><th>종목</th><th>수량</th><th>체결가</th><th>금액</th></tr></thead><tbody>
+    ${e.trades.map(([side, name, q, pr]) => `<tr><td><b class="${side === '매수' ? 'plus' : 'minus'}">${side}</b></td><td>${name}</td><td>${fmt(q)}주</td><td>${won(pr)}</td><td>${won(q * pr)}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="trade-sum">매도 ${won(sum('매도'))} · 매수 ${won(sum('매수'))} · 수수료 ${won((sum('매도') + sum('매수')) * 0.00015)}</p>
+  </div></div></li>`;
+}).join('');
+$('#timeline').addEventListener('click', e => {
+  const btn = e.target.closest('.head'); if (!btn) return;
+  const open = btn.getAttribute('aria-expanded') !== 'true';
+  btn.setAttribute('aria-expanded', open);
+  btn.closest('li').classList.toggle('open', open);
+});
+
+/* ---------- 투자 성향 프로필 / 설문 ---------- */
+const TYPES = [
+  {max:20, name:'안정형', desc:'원금 보전이 최우선입니다. 예적금 수준의 안정적인 수익을 선호하며 채권과 현금성 자산 중심으로 운용합니다.', alloc:[['주식',10],['채권',50],['금·원자재',5],['현금성',35]]},
+  {max:40, name:'안정추구형', desc:'원금 손실을 최소화하되 물가 상승을 넘는 수익을 기대합니다. 채권 비중을 높게 두고 일부만 주식에 배분합니다.', alloc:[['주식',25],['채권',45],['금·원자재',10],['현금성',20]]},
+  {max:60, name:'위험중립형', desc:'일정 수준의 손실 가능성을 받아들이고 수익과 안정성의 균형을 추구합니다. 주식과 채권을 고르게 배분합니다.', alloc:[['주식',45],['채권',35],['금·원자재',10],['현금성',10]]},
+  {max:80, name:'적극 투자형', desc:'기대 수익을 위해 단기 변동성을 감내할 수 있으며, 장기 투자를 선호합니다. 성장 자산 비중을 높게 가져가되 채권·금으로 하방을 방어합니다.', alloc:[['주식',55],['채권',25],['금·원자재',10],['현금성',10]]},
+  {max:101, name:'공격 투자형', desc:'높은 수익을 위해 큰 손실도 감수할 수 있습니다. 주식 중심으로 운용하며 현금성 자산은 최소화합니다.', alloc:[['주식',75],['채권',10],['금·원자재',10],['현금성',5]]},
+];
+const typeOf = score => TYPES.find(t => score < t.max);
+const CATS = {exp:'투자 경험', tol:'손실 감내', hor:'투자 기간', goal:'투자 목표'};
+const QUESTIONS = [
+  {c:'exp', q:'금융상품 투자 경험은 얼마나 되나요?', o:['없음','1년 미만','1~3년','3년 이상']},
+  {c:'exp', q:'지금까지 투자해 본 상품 중 가장 위험도가 높은 것은 무엇인가요?', o:['예·적금','채권·채권형 펀드','주식·주식형 ETF','해외주식·레버리지·파생상품']},
+  {c:'exp', q:'금융상품에 대한 이해 수준은 어느 정도인가요?', hint:'ETF, 분산투자, 변동성 같은 용어를 기준으로 생각해 주세요.', o:['거의 모른다','기본 개념만 안다','대부분 이해한다','다른 사람에게 설명할 수 있다']},
+  {c:'tol', q:'투자 원금에서 감내할 수 있는 최대 손실은 어느 정도인가요?', tag:['손실 불가','손실 허용 -5%','손실 허용 -15%','손실 허용 -30%'], o:['원금 손실은 감내할 수 없다','-5% 이내','-15% 이내','-30% 이상도 감내할 수 있다']},
+  {c:'tol', q:'투자한 자산이 한 달 만에 20% 하락했다면 어떻게 하시겠어요?', o:['전부 팔고 나온다','절반 정도 판다','그대로 보유한다','저가 매수 기회로 보고 추가 투자한다']},
+  {c:'tol', q:'다음 중 가장 마음에 드는 수익·변동 조합은 무엇인가요?', o:['연 3% 기대, 손익 변동 거의 없음','연 5% 기대, 손익 ±5% 변동','연 9% 기대, 손익 ±15% 변동','연 15% 기대, 손익 ±30% 변동']},
+  {c:'tol', q:'투자 금액이 전체 금융자산에서 차지하는 비중은 얼마인가요?', o:['70% 이상','50~70%','20~50%','20% 미만']},
+  {c:'hor', q:'계획하고 있는 투자 기간은 얼마인가요?', tag:['단기 투자 1년 미만','중기 투자 1~3년','중장기 투자 3~5년','장기 투자 5년+'], o:['1년 미만','1~3년','3~5년','5년 이상']},
+  {c:'hor', q:'투자금을 언제쯤 사용할 가능성이 있나요?', o:['1년 이내 사용 예정','1~3년 내 사용할 수 있다','3~5년 내 사용할 수 있다','5년 이후에도 쓸 계획이 없다']},
+  {c:'goal', q:'기대하는 연 목표 수익률은 얼마인가요?', tag:['목표 수익 연 3%','목표 수익 연 5%','목표 수익 연 9%','목표 수익 연 12%+'], o:['연 3% (예금 수준)','연 5%','연 9%','연 12% 이상']},
+  {c:'goal', q:'투자의 가장 큰 목적은 무엇인가요?', o:['원금을 지키는 것','물가 상승을 이겨내는 것','자산을 꾸준히 불리는 것','높은 수익을 노리는 것']},
+  {c:'goal', q:'어떤 방식으로 투자하고 싶으세요?', tag:['일시 투자','분기 추가 투자','월 적립식','월 적립식'], o:['목돈을 한 번에 넣고 유지','목돈 투자 후 분기마다 추가','매월 일정 금액 적립','매월 적립하고 하락 시 추가 투자']},
+];
+const DEFAULT_PROFILE = {type:'적극 투자형', desc:TYPES[3].desc, score:78, cats:{exp:70, tol:80, hor:85, goal:75},
+  tags:['장기 투자 5년+','손실 허용 -15%','목표 수익 연 9%','월 적립식'], date:'2026.09.28'};
+const KEY = 'alphafolio.profile';
+let profile = DEFAULT_PROFILE;
+try { profile = JSON.parse(localStorage.getItem(KEY)) || DEFAULT_PROFILE; } catch (e) {}
+
+function renderProfile() {
+  $('#pMeta').textContent = `설문 12문항 · ${profile.date} 완료`;
+  $('#pType').textContent = profile.type;
+  $('#pDesc').textContent = profile.desc;
+  $('#pTags').innerHTML = profile.tags.map(t => `<span class="tag">${t}</span>`).join('');
+  $('#pScore').textContent = profile.score;
+  $('#pGauge').style.left = profile.score + '%';
+  $('#pBars').innerHTML = Object.keys(CATS).map(k => `<div><span>${CATS[k]}</span><div class="bar"><i style="width:${profile.cats[k]}%"></i></div></div>`).join('');
+}
+
+const svCard = $('#svCard');
+let answers = [], step = 0;
+function gaugeHtml(score) {
+  return `<div class="gauge"><b style="left:${score}%"></b></div><div class="gauge-label"><span>안정형</span><span>중립형</span><span>공격형</span></div>`;
+}
+function renderSurvey() {
+  const q = QUESTIONS[step], last = step === QUESTIONS.length - 1;
+  svCard.innerHTML = `
+    <div class="sv-top"><span><span class="sv-cat">${CATS[q.c]}</span></span><span>${step + 1} / ${QUESTIONS.length}</span></div>
+    <div class="sv-progress"><i style="width:${(step + 1) / QUESTIONS.length * 100}%"></i></div>
+    <fieldset class="sv-opts"><legend class="sv-q">Q${step + 1}. ${q.q}</legend>
+      ${q.hint ? `<p class="sv-hint">${q.hint}</p>` : ''}
+      ${q.o.map((t, i) => `<label class="sv-opt"><input type="radio" name="q" value="${i}" ${answers[step] === i ? 'checked' : ''}>${t}</label>`).join('')}
+    </fieldset>
+    <div class="sv-nav"><button class="btn ghost" id="svPrev" ${step ? '' : 'disabled'}>이전</button><button class="btn" id="svNext" ${answers[step] == null ? 'disabled' : ''}>${last ? '결과 보기' : '다음'}</button></div>`;
+}
+function result() {
+  const norm = answers.map(a => a / 3);
+  const avg = arr => arr.reduce((x, y) => x + y, 0) / arr.length;
+  const score = Math.round(avg(norm) * 100);
+  const cats = {};
+  Object.keys(CATS).forEach(k => cats[k] = Math.round(avg(QUESTIONS.map((q, i) => q.c === k ? norm[i] : null).filter(v => v !== null)) * 100));
+  const t = typeOf(score);
+  const tags = QUESTIONS.map((q, i) => q.tag ? q.tag[answers[i]] : null).filter(Boolean);
+  return {type:t.name, desc:t.desc, score, cats, tags, alloc:t.alloc};
+}
+function renderResult() {
+  const r = result();
+  svCard.innerHTML = `<div class="sv-result">
+    <div class="sv-top" style="justify-content:center"><span class="sv-cat">분석 완료</span></div>
+    <div class="type">${r.type}</div><p class="desc">${r.desc}</p>
+    <div class="score">위험 감내 점수 <strong>${r.score}</strong> / 100</div>${gaugeHtml(r.score)}
+    <div class="tags" style="justify-content:center;margin-top:18px">${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    <div class="alloc"><h3>성향 기반 권장 자산 배분</h3>${r.alloc.map(([n, v]) => `<div><span>${n}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}%</b></div>`).join('')}
+      <p style="color:var(--muted);font-size:12px">다음 정기 리밸런싱(10/28)부터 새 성향이 반영됩니다.</p></div>
+    <div class="sv-actions"><button class="btn ghost" id="svRetry">다시 검사</button><button class="btn" id="svApply">대시보드에 반영</button></div></div>`;
+}
+svCard.addEventListener('change', e => {
+  if (e.target.name !== 'q') return;
+  answers[step] = +e.target.value;
+  $('#svNext').disabled = false;
+});
+svCard.addEventListener('click', e => {
+  const id = e.target.id;
+  if (id === 'svPrev' && step > 0) { step--; renderSurvey(); }
+  else if (id === 'svNext') { if (step < QUESTIONS.length - 1) { step++; renderSurvey(); } else renderResult(); }
+  else if (id === 'svRetry') startSurvey();
+  else if (id === 'svApply') {
+    const r = result(), d = new Date();
+    profile = {type:r.type, desc:r.desc, score:r.score, cats:r.cats, tags:r.tags,
+      date:`${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`};
+    try { localStorage.setItem(KEY, JSON.stringify(profile)); } catch (err) {}
+    renderProfile();
+    location.hash = '#dashboard';
+  }
+});
+function startSurvey() { answers = []; step = 0; renderSurvey(); }
+
+function route() {
+  const v = location.hash === '#survey' ? 'survey' : 'dashboard';
+  $('#view-dash').hidden = v !== 'dashboard';
+  $('#view-survey').hidden = v !== 'survey';
+  document.querySelectorAll('nav a[data-view]').forEach(a => a.classList.toggle('active', a.dataset.view === v));
+  document.querySelector('header.top h1').textContent = v === 'survey' ? '투자 성향 설문' : '김민준 님의 포트폴리오';
+  if (v === 'survey') startSurvey(); else drawLine();
+  window.scrollTo(0, 0);
+}
+renderProfile();
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
