@@ -10,3 +10,15 @@ export ANTHROPIC_API_KEY=...   # 선택: ANTHROPIC_MODEL
 npm run server                 # 추천 API (:8787)
 npm run dev                    # 프론트엔드 (Vite, /api 프록시)
 ```
+
+## 테스트
+
+```bash
+npm test   # 서버의 요청 검증·프롬프트·응답 파싱 (node:test)
+```
+
+## 기능
+
+- 한국어/영어 실시간 전사 (새로고침해도 localStorage에 유지), txt 내보내기
+- 내 역할·선호 톤을 반영한 응답 추천 (수동 / 문장 3개마다 자동)
+- 전사 기반 회의록 요약(`/api/summary`) 및 마크다운 내려받기

@@ -20,14 +20,30 @@ type Recognition = {
 const Ctor: (new () => Recognition) | undefined =
   (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition
 
+const STORAGE_KEY = 'meeting-segments'
+
+function loadSegments(): Segment[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    return Array.isArray(saved) ? saved.filter((s) => typeof s?.text === 'string' && typeof s?.id === 'number') : []
+  } catch {
+    return []
+  }
+}
+
 export function useSpeech(lang = 'ko-KR') {
-  const [segments, setSegments] = useState<Segment[]>([])
+  const [segments, setSegments] = useState<Segment[]>(loadSegments)
   const [interim, setInterim] = useState('')
   const [listening, setListening] = useState(false)
   const [error, setError] = useState('')
   const rec = useRef<Recognition | null>(null)
   const wanted = useRef(false)
-  const nextId = useRef(0)
+  const nextId = useRef(segments.reduce((m, s) => Math.max(m, s.id + 1), 0))
+
+  // 새로고침해도 전사 내용이 유지되도록 저장한다.
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(segments))
+  }, [segments])
 
   const stop = useCallback(() => {
     wanted.current = false

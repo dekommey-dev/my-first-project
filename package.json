@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
+    "test": "node --test server/*.test.js",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },

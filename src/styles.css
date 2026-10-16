@@ -18,3 +18,8 @@ button.danger { background: #e03131; border-color: #e03131; color: #fff; }
 .suggestions li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; background: #f4f6ff; border-radius: 8px; line-height: 1.5; }
 select { border: 1px solid #cfd4e2; background: #fff; padding: 8px; border-radius: 8px; font: inherit; }
 .auto { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #596178; }
+.settings { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+input[type='text'], .settings input { border: 1px solid #cfd4e2; padding: 8px; border-radius: 8px; font: inherit; min-width: 0; }
+.panel .actions { flex-wrap: wrap; align-items: center; }
+.summary { white-space: pre-wrap; font: inherit; line-height: 1.6; background: #f4f6ff; padding: 12px; border-radius: 8px; margin: 12px 0 0; }
+@media (max-width: 560px) { .settings { grid-template-columns: 1fr; } }
