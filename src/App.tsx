@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSpeech } from './useSpeech'
-
-const AUTO_EVERY = 3
+import { AUTO_EVERY, autoState, finalSuggestions, partialSuggestions, readTextStream } from './logic'
 
 export default function App() {
   const [lang, setLang] = useState('ko-KR')
@@ -26,8 +25,9 @@ export default function App() {
 
   // 자동 추천: 마지막 추천 이후 문장이 AUTO_EVERY개 쌓이면 요청한다.
   useEffect(() => {
-    if (segments.length < lastCount.current) lastCount.current = 0
-    if (auto && !loading && segments.length - lastCount.current >= AUTO_EVERY) recommend()
+    const { base, fire } = autoState(auto, loading, segments.length, lastCount.current)
+    lastCount.current = base
+    if (fire) recommend()
   }, [segments, auto, loading])
 
   useEffect(() => {
@@ -35,22 +35,22 @@ export default function App() {
     localStorage.setItem('meeting-tone', tone)
   }, [role, tone])
 
-  async function post(path: string, body: object) {
+  // 스트리밍 응답을 읽으며 누적 텍스트를 onText로 알린다.
+  async function postStream(path: string, body: object, onText: (t: string) => void) {
     const res = await fetch(path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     })
-    const json = await res.json()
-    if (!res.ok) throw new Error(json.error ?? '요청 실패')
-    return json
+    return readTextStream(res, onText)
   }
 
   async function summarize() {
     setSummarizing(true)
     setSummaryError('')
+    setSummary('')
     try {
-      setSummary((await post('/api/summary', { transcript })).summary)
+      setSummary((await postStream('/api/summary', { transcript }, setSummary)).trim())
     } catch (e) {
       setSummaryError((e as Error).message)
     } finally {
@@ -77,8 +77,10 @@ export default function App() {
     lastCount.current = segments.length
     setLoading(true)
     setApiError('')
+    setSuggestions([])
     try {
-      setSuggestions((await post('/api/suggest', { transcript, role, tone })).suggestions)
+      const text = await postStream('/api/suggest', { transcript, role, tone }, (t) => setSuggestions(partialSuggestions(t)))
+      setSuggestions(finalSuggestions(text))
     } catch (e) {
       setApiError((e as Error).message)
     } finally {

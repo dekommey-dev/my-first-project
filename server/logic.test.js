@@ -35,3 +35,22 @@ test('parseSuggestions: 배열이 없거나 비어 있으면 에러', () => {
   assert.throws(() => parseSuggestions('[broken'), /해석/)
   assert.throws(() => parseSuggestions(undefined), /해석/)
 })
+
+import { createSseParser } from './logic.js'
+
+const ev = (text) => `data: ${JSON.stringify({ type: 'content_block_delta', delta: { type: 'text_delta', text } })}\n\n`
+
+test('createSseParser: 줄 중간에서 끊긴 청크도 이어 붙여 처리한다', () => {
+  const out = []
+  const feed = createSseParser((t) => out.push(t))
+  const raw = ev('안녕') + 'event: ping\ndata: {"type":"ping"}\n\n' + ev('하세요')
+  feed(raw.slice(0, 20))
+  feed(raw.slice(20, 70))
+  feed(raw.slice(70))
+  assert.deepEqual(out, ['안녕', '하세요'])
+})
+
+test('createSseParser: error 이벤트는 예외로 전달한다', () => {
+  const feed = createSseParser(() => {})
+  assert.throws(() => feed('data: {"type":"error","error":{"message":"과부하"}}\n'), /과부하/)
+})

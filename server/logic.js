@@ -51,3 +51,28 @@ export function parseSuggestions(text) {
   if (!list.length) throw new Error('추천 응답을 해석하지 못했습니다.')
   return list
 }
+
+// Anthropic SSE 스트림 조각을 받아 text_delta의 텍스트를 onText로 넘기는 파서.
+// 네트워크 청크가 줄 중간에서 끊겨도 완성된 줄만 처리한다.
+export function createSseParser(onText) {
+  let buf = ''
+  return (chunk) => {
+    buf += chunk
+    const lines = buf.split('\n')
+    buf = lines.pop() ?? ''
+    for (const line of lines) {
+      if (!line.startsWith('data:')) continue
+      try {
+        const ev = JSON.parse(line.slice(5))
+        if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') onText(ev.delta.text)
+        if (ev.type === 'error') throw new Error(ev.error?.message ?? 'LLM 스트림 오류')
+      } catch (e) {
+        if (e instanceof SyntaxError) continue
+        throw e
+      }
+    }
+  }
+}
+
+// 스트림 중간에 발생한 오류를 본문으로 전달하기 위한 표식(헤더는 이미 200으로 나갔다).
+export const ERROR_MARK = '\u0000ERROR:'

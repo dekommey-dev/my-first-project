@@ -22,3 +22,13 @@ npm test   # 서버의 요청 검증·프롬프트·응답 파싱 (node:test)
 - 한국어/영어 실시간 전사 (새로고침해도 localStorage에 유지), txt 내보내기
 - 내 역할·선호 톤을 반영한 응답 추천 (수동 / 문장 3개마다 자동)
 - 전사 기반 회의록 요약(`/api/summary`) 및 마크다운 내려받기
+
+## 배포 (서버가 프론트엔드까지 서빙)
+
+```bash
+export ANTHROPIC_API_KEY=...
+npm start          # build 후 :8787 (PORT로 변경)에서 API + dist 서빙
+```
+
+추천·요약 응답은 LLM 출력을 text/plain 스트림으로 그대로 전달하며, 화면에 점진적으로 표시됩니다.
+테스트는 가짜 Anthropic 서버(`ANTHROPIC_BASE_URL`)로 스트리밍 흐름을 검증합니다.
