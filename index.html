@@ -78,6 +78,19 @@
   .timeline li:last-child { padding-bottom: 0; }
   .timeline li::before { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 4px solid var(--primary); }
   .timeline .head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .timeline .head { width: 100%; background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .timeline .head:hover .title { color: var(--primary); }
+  .chev { display: inline-block; width: 7px; height: 7px; border: solid var(--muted); border-width: 0 2px 2px 0; transform: rotate(45deg); margin: 0 4px 3px 10px; transition: transform .2s; }
+  .timeline li.open .chev { transform: rotate(-135deg); margin-bottom: -2px; }
+  .detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+  .timeline li.open .detail { grid-template-rows: 1fr; }
+  .detail-in { overflow: hidden; overflow-x: auto; }
+  .detail table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+  .detail th { color: var(--muted); font-weight: 600; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .detail td { padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .detail th:nth-child(n+3), .detail td:nth-child(n+3) { text-align: right; }
+  .detail-in { min-width: 0; }
+  .trade-sum { font-size: 12px; color: var(--muted); margin-top: 8px; }
   .timeline .date { font-size: 12px; color: var(--muted); }
   .timeline .title { font-weight: 700; font-size: 14px; }
   .timeline .reason { font-size: 13px; color: var(--muted); margin: 2px 0 8px; }
@@ -296,15 +309,35 @@ drawLine();
 
 /* ---------- 리밸런싱 타임라인 ---------- */
 const events = [
-  {date:'2026.09.30', title:'분기 정기 리밸런싱', reason:'해외 주식 비중이 목표(38%)를 2%p 초과해 차익 실현 후 채권에 재배분했습니다.', chg:[['해외 주식', -2], ['채권', +2]]},
-  {date:'2026.08.14', title:'변동성 확대 대응', reason:'VIX 상승으로 위험 예산을 초과해 현금성 자산을 일시 확대했습니다.', chg:[['국내 주식', -3], ['해외 주식', -2], ['현금성', +5]]},
-  {date:'2026.06.30', title:'분기 정기 리밸런싱', reason:'금 가격 조정 구간에서 저평가 판단에 따라 비중을 확대했습니다.', chg:[['금·원자재', +2], ['현금성', -2]]},
-  {date:'2026.05.09', title:'투자 성향 재설정 반영', reason:'설문 재분석 결과 위험 감내도가 상승해 성장 자산 비중을 높였습니다.', chg:[['해외 주식', +4], ['채권', -4]]},
+  {date:'2026.09.30', title:'분기 정기 리밸런싱', reason:'해외 주식 비중이 목표(38%)를 2%p 초과해 차익 실현 후 채권에 재배분했습니다.', chg:[['해외 주식', -2], ['채권', +2]],
+   trades:[['매도','TIGER 미국S&P500',120,21450],['매도','TIGER 나스닥100',45,131200],['매수','KODEX 국고채10년',310,10820],['매수','TIGER 미국채10년선물',95,12900]]},
+  {date:'2026.08.14', title:'변동성 확대 대응', reason:'VIX 상승으로 위험 예산을 초과해 현금성 자산을 일시 확대했습니다.', chg:[['국내 주식', -3], ['해외 주식', -2], ['현금성', +5]],
+   trades:[['매도','KODEX 200',140,36800],['매도','TIGER 미국S&P500',90,20980],['매수','KODEX CD금리액티브',420,1040]]},
+  {date:'2026.06.30', title:'분기 정기 리밸런싱', reason:'금 가격 조정 구간에서 저평가 판단에 따라 비중을 확대했습니다.', chg:[['금·원자재', +2], ['현금성', -2]],
+   trades:[['매도','KODEX CD금리액티브',2500,1038],['매수','ACE KRX금현물',180,14250]]},
+  {date:'2026.05.09', title:'투자 성향 재설정 반영', reason:'설문 재분석 결과 위험 감내도가 상승해 성장 자산 비중을 높였습니다.', chg:[['해외 주식', +4], ['채권', -4]],
+   trades:[['매도','KODEX 국고채10년',480,10760],['매수','TIGER 미국S&P500',140,20610],['매수','TIGER 나스닥100',20,127800]]},
 ];
-$('#timeline').innerHTML = events.map(e => `<li>
-  <div class="head"><span class="title">${e.title}</span><span class="date">${e.date}</span></div>
+const won = n => '₩' + fmt(Math.round(n));
+$('#timeline').innerHTML = events.map((e, i) => {
+  const sum = side => e.trades.filter(t => t[0] === side).reduce((a, t) => a + t[2] * t[3], 0);
+  return `<li>
+  <button class="head" aria-expanded="false" aria-controls="tl${i}"><span class="title">${e.title}</span><span class="date">${e.date}<i class="chev"></i></span></button>
   <p class="reason">${e.reason}</p>
-  <div class="chg">${e.chg.map(([n, v]) => `<span class="${v > 0 ? 'plus' : 'minus'}">${n} ${v > 0 ? '+' : ''}${v}%p</span>`).join('')}</div></li>`).join('');
+  <div class="chg">${e.chg.map(([n, v]) => `<span class="${v > 0 ? 'plus' : 'minus'}">${n} ${v > 0 ? '+' : ''}${v}%p</span>`).join('')}</div>
+  <div class="detail" id="tl${i}"><div class="detail-in">
+    <table><thead><tr><th>구분</th><th>종목</th><th>수량</th><th>체결가</th><th>금액</th></tr></thead><tbody>
+    ${e.trades.map(([side, name, q, pr]) => `<tr><td><b class="${side === '매수' ? 'plus' : 'minus'}">${side}</b></td><td>${name}</td><td>${fmt(q)}주</td><td>${won(pr)}</td><td>${won(q * pr)}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="trade-sum">매도 ${won(sum('매도'))} · 매수 ${won(sum('매수'))} · 수수료 ${won((sum('매도') + sum('매수')) * 0.00015)}</p>
+  </div></div></li>`;
+}).join('');
+$('#timeline').addEventListener('click', e => {
+  const btn = e.target.closest('.head'); if (!btn) return;
+  const open = btn.getAttribute('aria-expanded') !== 'true';
+  btn.setAttribute('aria-expanded', open);
+  btn.closest('li').classList.toggle('open', open);
+});
 </script>
 </body>
 </html>
