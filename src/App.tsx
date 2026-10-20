@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSpeech } from './useSpeech'
-import { AUTO_EVERY, autoState, finalSuggestions, partialSuggestions, readTextStream } from './logic'
+import { AUTO_EVERY, autoState, finalSuggestions, isAbortError, partialSuggestions, readTextStream } from './logic'
 
 export default function App() {
   const [lang, setLang] = useState('ko-KR')
@@ -16,6 +16,8 @@ export default function App() {
   const [summaryError, setSummaryError] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
   const lastCount = useRef(0)
+  const suggestAbort = useRef<AbortController | null>(null)
+  const summaryAbort = useRef<AbortController | null>(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -36,11 +38,12 @@ export default function App() {
   }, [role, tone])
 
   // 스트리밍 응답을 읽으며 누적 텍스트를 onText로 알린다.
-  async function postStream(path: string, body: object, onText: (t: string) => void) {
+  async function postStream(path: string, body: object, onText: (t: string) => void, signal: AbortSignal) {
     const res = await fetch(path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
+      signal,
     })
     return readTextStream(res, onText)
   }
@@ -49,11 +52,14 @@ export default function App() {
     setSummarizing(true)
     setSummaryError('')
     setSummary('')
+    const ac = (summaryAbort.current = new AbortController())
     try {
-      setSummary((await postStream('/api/summary', { transcript }, setSummary)).trim())
+      setSummary((await postStream('/api/summary', { transcript }, setSummary, ac.signal)).trim())
     } catch (e) {
-      setSummaryError((e as Error).message)
+      // 사용자가 중단한 경우 지금까지 받은 부분 결과를 그대로 둔다.
+      if (!isAbortError(e)) setSummaryError((e as Error).message)
     } finally {
+      summaryAbort.current = null
       setSummarizing(false)
     }
   }
@@ -78,12 +84,14 @@ export default function App() {
     setLoading(true)
     setApiError('')
     setSuggestions([])
+    const ac = (suggestAbort.current = new AbortController())
     try {
-      const text = await postStream('/api/suggest', { transcript, role, tone }, (t) => setSuggestions(partialSuggestions(t)))
+      const text = await postStream('/api/suggest', { transcript, role, tone }, (t) => setSuggestions(partialSuggestions(t)), ac.signal)
       setSuggestions(finalSuggestions(text))
     } catch (e) {
-      setApiError((e as Error).message)
+      if (!isAbortError(e)) setApiError((e as Error).message)
     } finally {
+      suggestAbort.current = null
       setLoading(false)
     }
   }
@@ -133,6 +141,7 @@ export default function App() {
           <button className="primary" onClick={recommend} disabled={!segments.length || loading}>
             {loading ? '생성 중…' : '응답 추천받기'}
           </button>
+          {loading && <button onClick={() => suggestAbort.current?.abort()}>■ 중단</button>}
           <label className="auto">
             <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
             문장 {AUTO_EVERY}개마다 자동 추천
@@ -155,6 +164,7 @@ export default function App() {
           <button className="primary" onClick={summarize} disabled={!segments.length || summarizing}>
             {summarizing ? '정리 중…' : '회의록 만들기'}
           </button>
+          {summarizing && <button onClick={() => summaryAbort.current?.abort()}>■ 중단</button>}
           <button onClick={() => download(`minutes-${stamp()}.md`, summary)} disabled={!summary}>
             내려받기
           </button>

@@ -53,3 +53,8 @@ export async function readTextStream(res: Response, onText: (full: string) => vo
   if (error) throw new Error(error)
   return text
 }
+
+// AbortController로 취소된 요청인지(fetch·스트림 읽기 모두 AbortError를 던진다).
+export function isAbortError(e: unknown): boolean {
+  return e instanceof Error && e.name === 'AbortError'
+}

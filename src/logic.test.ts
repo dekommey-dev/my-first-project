@@ -42,3 +42,26 @@ test('readTextStream: 누적 텍스트를 알리고 오류 표식은 예외로',
   const bad = new Response(JSON.stringify({ error: '키 없음' }), { status: 500 })
   await assert.rejects(readTextStream(bad, () => {}), /키 없음/)
 })
+
+import { isAbortError } from './logic.ts'
+
+test('isAbortError / readTextStream: 중단하면 AbortError를 던지고 부분 텍스트는 이미 전달됨', async () => {
+  assert.equal(isAbortError(new DOMException('x', 'AbortError')), true)
+  assert.equal(isAbortError(new Error('boom')), false)
+  assert.equal(isAbortError('AbortError'), false)
+
+  const ac = new AbortController()
+  const body = new ReadableStream({
+    start(c) {
+      c.enqueue(new TextEncoder().encode('["a",'))
+      ac.signal.addEventListener('abort', () => c.error(ac.signal.reason))
+    },
+  })
+  const seen: string[] = []
+  const p = readTextStream(new Response(body), (t) => {
+    seen.push(t)
+    ac.abort()
+  })
+  await assert.rejects(p, (e) => isAbortError(e))
+  assert.deepEqual(seen, ['["a",'])
+})
