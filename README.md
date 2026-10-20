@@ -1,5 +1,7 @@
 # 회의 도우미
 
+[![CI](https://github.com/dekommey-dev/my-first-project/actions/workflows/ci.yml/badge.svg)](https://github.com/dekommey-dev/my-first-project/actions/workflows/ci.yml)
+
 회의 음성을 브라우저 Web Speech API(Chrome/Edge)로 실시간 전사하고, LLM으로 답변을 추천하는 웹앱.
 
 ## 실행
@@ -40,3 +42,7 @@ export ANTHROPIC_API_KEY=...
 npm start                # 터미널 1
 npm run smoke            # 터미널 2: 추천·회의록 스트리밍을 실제 호출해 확인
 ```
+
+## CI
+
+`.github/workflows/ci.yml`이 푸시와 PR마다 Node 22에서 `npm ci` → `npm test` → `npm run build`를 실행합니다.
