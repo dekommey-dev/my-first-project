@@ -32,3 +32,11 @@ npm start          # build 후 :8787 (PORT로 변경)에서 API + dist 서빙
 
 추천·요약 응답은 LLM 출력을 text/plain 스트림으로 그대로 전달하며, 화면에 점진적으로 표시됩니다.
 테스트는 가짜 Anthropic 서버(`ANTHROPIC_BASE_URL`)로 스트리밍 흐름을 검증합니다.
+
+## 실제 키 점검
+
+```bash
+export ANTHROPIC_API_KEY=...
+npm start                # 터미널 1
+npm run smoke            # 터미널 2: 추천·회의록 스트리밍을 실제 호출해 확인
+```

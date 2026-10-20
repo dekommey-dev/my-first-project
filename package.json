@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
+    "smoke": "node scripts/smoke.mjs",
     "start": "npm run build && node server/index.js",
     "test": "node --test server/*.test.js src/*.test.ts",
     "build": "tsc --noEmit && vite build",
